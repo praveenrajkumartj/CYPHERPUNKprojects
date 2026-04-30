@@ -1,192 +1,215 @@
-import { Metadata } from 'next';
 import prisma from '@/lib/prisma';
 import Navbar from '@/components/Navbar';
-import { Calendar, MapPin, Users, Clock, Share2, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import Image from 'next/image';
 import { format } from 'date-fns';
-import RSVPButton from '@/components/RSVPButton';
+import { Calendar, MapPin, Clock, Video, Globe, Users, ChevronRight, LayoutGrid } from 'lucide-react';
+import MotionDiv from '@/components/MotionDiv';
+import EventDetailCTA from '@/components/EventDetailCTA';
+import { notFound } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getSession } from '@/lib/auth';
 
-interface Props {
-  params: { id: string };
-}
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const event = await prisma.event.findUnique({
-    where: { id: params.id },
-  });
-  return {
-    title: `${event?.title || 'Event'} | Cyberphunk`,
-    description: event?.description,
-  };
-}
-
-export default async function EventDetailPage({ params }: Props) {
-  const event = await prisma.event.findUnique({
-    where: { id: params.id },
-    include: {
-      organizer: {
-        select: { name: true, bio: true }
-      },
-      _count: {
-        select: { attendees: true }
-      },
-      attendees: {
-        include: {
-          user: {
-            select: { name: true, image: true } // Assuming image field might be added later, using name for now
-          }
-        },
-        take: 12
-      }
-    }
-  });
-
-  if (!event) {
-    return (
-      <main className="min-h-screen bg-dark-300 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Event not found</h1>
-          <Link href="/events" className="text-primary font-bold">Back to events</Link>
-        </div>
-      </main>
-    );
-  }
-
+async function getUserId() {
   const session = await getSession();
-  const isRSVPed = session ? await prisma.eventAttendee.findUnique({
-    where: {
-      userId_eventId: {
-        userId: session.id as string,
-        eventId: event.id
+  return session ? (session.id as string) : null;
+}
+
+export default async function EventDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const userId = await getUserId();
+
+  const event = await prisma.event.findUnique({
+    where: { id },
+    include: {
+      organizer: true,
+      speakers: true,
+      schedules: true,
+      registrations: userId ? { where: { userId } } : false,
+      tickets: userId ? { where: { userId } } : false,
+      _count: {
+        select: { registrations: true, tickets: true }
       }
-    }
-  }) : false;
+    },
+  });
+
+  if (!event) notFound();
+
+  const isRsvped = (event.registrations?.length ?? 0) > 0;
+  const isBooked = (event.tickets?.length ?? 0) > 0;
+  const isPaid = event.type !== 'hackathon'; // Simple logic for demo
 
   return (
-    <main className="min-h-screen bg-dark-300">
+    <main className="min-h-screen bg-[#050510] text-[#f8fbff]">
       <Navbar />
 
-      <div className="pt-32 pb-20 container mx-auto px-6">
-        <Link href="/events" className="inline-flex items-center gap-2 text-slate-500 hover:text-white transition-colors mb-8 group">
-          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          Back to all events
-        </Link>
-
-        <div className="grid lg:grid-cols-3 gap-12">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-12">
-            <div>
-              <div className="flex flex-wrap items-center gap-3 mb-6">
-                <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
-                  {event.type}
-                </span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                  {event.locationType}
-                </span>
-              </div>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-8 leading-tight">
-                {event.title}
-              </h1>
-              
-              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 py-8 border-y border-white/5">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                    <Calendar size={24} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Date</p>
-                    <p className="font-semibold">{format(new Date(event.date), 'MMMM dd, yyyy')}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
-                    <Clock size={24} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Time</p>
-                    <p className="font-semibold">{format(new Date(event.date), 'hh:mm a')}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-                    <MapPin size={24} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Location</p>
-                    <p className="font-semibold capitalize">{event.locationType}</p>
-                  </div>
-                </div>
-              </div>
+      {/* Hero Banner */}
+      <div className="relative h-[60vh] w-full pt-20 bg-[#0c1222]">
+        {event.bannerImage && (event.bannerImage.startsWith('http') || event.bannerImage.startsWith('/')) && (
+          <Image 
+            src={event.bannerImage} 
+            alt={event.title} 
+            fill 
+            className="object-cover opacity-50"
+            priority
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050510] via-transparent to-transparent" />
+        
+        <div className="container mx-auto px-6 h-full flex flex-col justify-end pb-12 relative z-10">
+          <MotionDiv
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6 max-w-4xl"
+          >
+            <div className="flex flex-wrap gap-4 items-center">
+              <span className="px-4 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-xs font-bold uppercase tracking-widest text-cyan-400">
+                {event.type}
+              </span>
+              <span className="flex items-center gap-2 text-slate-300 text-sm font-medium">
+                <Calendar size={16} className="text-cyan-400" />
+                {format(new Date(event.date), 'MMMM dd, yyyy')}
+              </span>
+              <span className="flex items-center gap-2 text-slate-300 text-sm font-medium">
+                <Clock size={16} className="text-pink-400" />
+                {format(new Date(event.date), 'HH:mm')} UTC
+              </span>
             </div>
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1]">
+              {event.title}
+            </h1>
+          </MotionDiv>
+        </div>
+      </div>
 
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold">About the Event</h2>
-              <div className="text-slate-400 leading-relaxed text-lg whitespace-pre-wrap">
-                {event.description}
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid lg:grid-cols-[1fr_400px] gap-16">
+          {/* Main Info */}
+          <div className="space-y-16">
+            <section className="space-y-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-1 h-1 bg-cyan-400 rounded-full" />
+                <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-slate-500">System Overview</h2>
               </div>
-            </div>
-
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Attendees ({event._count.attendees})</h2>
-              <div className="flex flex-wrap gap-4">
-                {event.attendees.map((attendee, i) => (
-                  <div key={i} className="flex flex-col items-center gap-2">
-                    <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center border border-white/10 overflow-hidden">
-                      <span className="font-bold text-slate-500">{attendee.user.name.charAt(0)}</span>
-                    </div>
-                    <span className="text-xs text-slate-500 truncate w-16 text-center">{attendee.user.name.split(' ')[0]}</span>
-                  </div>
-                ))}
-                {event._count.attendees > 12 && (
-                  <div className="flex items-center justify-center w-14 h-14 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-slate-500">
-                    +{event._count.attendees - 12}
-                  </div>
+              <div className="prose prose-invert max-w-none">
+                <p className="text-xl text-slate-300 leading-relaxed font-light">
+                  {event.description}
+                </p>
+                {event.longDescription && (
+                  <p className="text-slate-400 leading-relaxed mt-6">
+                    {event.longDescription}
+                  </p>
                 )}
               </div>
-            </div>
+            </section>
+
+            {/* Speakers */}
+            {event.speakers.length > 0 && (
+              <section className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-1 bg-pink-500 rounded-full" />
+                  <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-slate-500">Transmission Nodes (Speakers)</h2>
+                </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {event.speakers.map((speaker) => (
+                    <div key={speaker.id} className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-sm">
+                      <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-white/10">
+                        <Image src={speaker.image || '/images/avatar_1_1777452297481.png'} alt={speaker.name} fill className="object-cover" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-white">{speaker.name}</h4>
+                        <p className="text-sm text-cyan-400 font-medium">{speaker.designation}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Schedule */}
+            {event.schedules.length > 0 && (
+              <section className="space-y-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-1 bg-[#ffd700] rounded-full" />
+                  <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-slate-500">Execution Plan (Schedule)</h2>
+                </div>
+                <div className="space-y-4">
+                  {event.schedules.map((item, idx) => (
+                    <div key={item.id} className="group flex items-start gap-8 p-6 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+                      <div className="text-cyan-400 font-mono font-bold text-sm pt-1 min-w-[80px]">
+                        {item.time}
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-lg font-bold text-white mb-2">{item.title}</h4>
+                        {item.description && <p className="text-slate-400 text-sm">{item.description}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-8">
-            <div className="glass-card p-8 rounded-[2rem] sticky top-32">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Registration</p>
-                  <p className="text-2xl font-bold">Free Entry</p>
+          {/* Sidebar CTA */}
+          <aside className="space-y-8">
+            <div className="sticky top-32">
+              <MotionDiv
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="p-8 rounded-[2.5rem] bg-[#0c1222]/80 border border-white/10 backdrop-blur-xl space-y-8 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+              >
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4 text-slate-300">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
+                      <MapPin size={20} className="text-cyan-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Location</p>
+                      <p className="font-bold text-white">{event.locationType === 'online' ? 'Online stream' : event.location}</p>
+                    </div>
+                  </div>
+
+                  {event.locationType === 'online' && (
+                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between group cursor-pointer hover:bg-white/10 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Video size={18} className="text-pink-400" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Join Stream Link</span>
+                      </div>
+                      <ChevronRight size={16} className="text-slate-500 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  )}
+
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                     <div className="flex items-center gap-3 mb-3">
+                        <Users size={18} className="text-[#ffd700]" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-slate-300">Organizer</span>
+                     </div>
+                     <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                           {event.organizer.name.charAt(0)}
+                        </div>
+                        <span className="font-bold text-sm text-white">{event.organizer.name}</span>
+                     </div>
+                  </div>
                 </div>
-                <button className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
-                  <Share2 size={20} />
-                </button>
-              </div>
 
-              <RSVPButton 
-                eventId={event.id} 
-                initialIsRSVPed={!!isRSVPed} 
-                isAuthenticated={!!session} 
-              />
-
-              <p className="text-center text-xs text-slate-500 mt-6">
-                Limited slots available. Secure your spot now!
-              </p>
+                <div className="pt-8 border-t border-white/10">
+                  <EventDetailCTA 
+                    eventId={event.id} 
+                    isRsvped={isRsvped} 
+                    isBooked={isBooked}
+                    isPaid={isPaid}
+                    isLoggedIn={!!userId}
+                    capacity={event.capacity || 100}
+                    currentCount={(event._count?.registrations || 0) + (event._count?.tickets || 0)}
+                  />
+                </div>
+              </MotionDiv>
             </div>
-
-            <div className="glass-card p-8 rounded-[2rem]">
-              <h3 className="text-lg font-bold mb-6">Organizer</h3>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-xl font-bold">
-                  {event.organizer.name.charAt(0)}
-                </div>
-                <div>
-                  <p className="font-bold">{event.organizer.name}</p>
-                  <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Host</p>
-                </div>
-              </div>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                {event.organizer.bio || 'Professional Web3 community organizer focused on building the future of decentralized tech.'}
-              </p>
-            </div>
-          </div>
+          </aside>
         </div>
       </div>
     </main>

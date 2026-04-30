@@ -1,11 +1,11 @@
-import Navbar from '@/components/Navbar';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import { Calendar, Users, Edit3, Trash2, Plus, Eye, ArrowRight } from 'lucide-react';
+import { Calendar, Users, Zap, TrendingUp, ArrowRight, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import MotionDiv from '@/components/MotionDiv';
 
-export default async function OrganizerDashboard() {
+export default async function OrganizerOverview() {
   const session = await getSession();
   if (!session) return null;
 
@@ -13,106 +13,163 @@ export default async function OrganizerDashboard() {
     where: { organizerId: session.id as string },
     include: {
       _count: {
-        select: { attendees: true }
+        select: { registrations: true, tickets: true }
       }
     },
-    orderBy: { date: 'desc' }
+    orderBy: { date: 'desc' },
+    take: 5
   });
 
+  const totalEvents = await prisma.event.count({ where: { organizerId: session.id as string } });
+  
+  // Get all sign-ups for all events owned by this organizer
+  const eventsWithCounts = await prisma.event.findMany({
+    where: { organizerId: session.id as string },
+    select: {
+      _count: {
+        select: { registrations: true, tickets: true }
+      }
+    }
+  });
+
+  const totalAttendees = eventsWithCounts.reduce((acc, curr) => acc + curr._count.registrations + curr._count.tickets, 0);
+
+  const totalRsvpTickets = await prisma.ticket.count({
+    where: { 
+      event: { organizerId: session.id as string },
+      type: 'Basic'
+    }
+  });
+  const totalPaidTickets = await prisma.ticket.count({
+    where: { 
+      event: { organizerId: session.id as string },
+      type: { not: 'Basic' }
+    }
+  });
+
+  const stats = [
+    { label: 'Total Events', value: totalEvents, icon: Calendar, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+    { label: 'Registrations', value: totalAttendees, icon: Users, color: 'text-pink-400', bg: 'bg-pink-500/10' },
+    { label: 'RSVP Tickets', value: totalRsvpTickets, icon: Zap, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+    { label: 'Paid Tickets', value: totalPaidTickets, icon: Zap, color: 'text-[#ffd700]', bg: 'bg-[#ffd700]/10' },
+  ];
+
   return (
-    <main className="min-h-screen bg-dark-300">
-      <Navbar />
+    <div className="space-y-12">
+      <header>
+        <MotionDiv
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <h1 className="text-4xl font-bold tracking-tight mb-2">Organizer <span className="text-cyan-400">Hub</span></h1>
+          <p className="text-slate-500 font-mono text-sm uppercase tracking-widest">Protocol control center // v1.0.4</p>
+        </MotionDiv>
+      </header>
 
-      <div className="pt-32 pb-20 container mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight mb-2">Organizer Hub</h1>
-            <p className="text-slate-400">Manage your events and track engagement.</p>
-          </div>
-          
-          <Link 
-            href="/organizer/events/new"
-            className="px-6 py-3 bg-primary text-white rounded-xl font-bold flex items-center gap-2 hover:bg-opacity-90 transition-all shadow-lg shadow-primary/20"
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, i) => (
+          <MotionDiv
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="p-8 rounded-[2rem] bg-[#0c1222] border border-white/5 flex items-center justify-between group hover:border-cyan-500/30 transition-all"
           >
-            <Plus size={20} />
-            Create New Event
-          </Link>
-        </div>
-
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold">My Events ({events.length})</h2>
-          
-          {events.length > 0 ? (
-            <div className="grid gap-6">
-              {events.map((event) => (
-                <div key={event.id} className="glass-card p-8 rounded-[2rem] flex flex-col lg:flex-row lg:items-center justify-between gap-8 group">
-                  <div className="flex flex-col md:flex-row md:items-center gap-8">
-                    <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center text-slate-400 group-hover:border-primary/50 transition-colors">
-                      <span className="text-xs font-bold uppercase">{format(new Date(event.date), 'MMM')}</span>
-                      <span className="text-2xl font-black text-white">{format(new Date(event.date), 'dd')}</span>
-                    </div>
-                    
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
-                          {event.type}
-                        </span>
-                        <span className="text-xs text-slate-500 font-medium">{event.locationType}</span>
-                      </div>
-                      <h3 className="text-2xl font-bold mb-1">{event.title}</h3>
-                      <p className="text-slate-400 text-sm max-w-md line-clamp-1">{event.description}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-12">
-                    <div className="text-center">
-                      <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Attendees</p>
-                      <div className="flex items-center gap-2 justify-center">
-                        <Users size={16} className="text-secondary" />
-                        <span className="text-xl font-bold">{event._count.attendees}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <Link 
-                        href={`/events/${event.id}`}
-                        className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-white transition-all"
-                      >
-                        <Eye size={20} />
-                      </Link>
-                      <Link 
-                        href={`/organizer/events/${event.id}/edit`}
-                        className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary transition-all"
-                      >
-                        <Edit3 size={20} />
-                      </Link>
-                      <button className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-accent hover:border-accent transition-all">
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">{stat.label}</p>
+              <p className="text-4xl font-black">{stat.value}</p>
             </div>
-          ) : (
-            <div className="glass p-20 rounded-[3rem] text-center">
-              <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6 text-slate-600">
-                <Calendar size={40} />
-              </div>
-              <h3 className="text-2xl font-bold mb-2">No events created yet</h3>
-              <p className="text-slate-500 mb-8 max-w-md mx-auto">
-                Start building the community by hosting your first hackathon or workshop.
-              </p>
-              <Link 
-                href="/organizer/events/new"
-                className="inline-flex px-8 py-4 bg-primary text-white rounded-2xl font-bold hover:scale-105 transition-all"
-              >
-                Launch Your First Event
-              </Link>
+            <div className={`w-14 h-14 rounded-2xl ${stat.bg} flex items-center justify-center ${stat.color} border border-white/5 group-hover:scale-110 transition-transform`}>
+              <stat.icon size={28} />
             </div>
-          )}
-        </div>
+          </MotionDiv>
+        ))}
       </div>
-    </main>
+
+      <div className="grid lg:grid-cols-3 gap-12">
+        {/* Recent Events List */}
+        <section className="lg:col-span-2 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold flex items-center gap-3">
+              Recent Deployments <TrendingUp size={20} className="text-cyan-400" />
+            </h2>
+            <Link href="/organizer/events" className="text-xs font-bold uppercase tracking-widest text-cyan-400 hover:text-cyan-300">View All</Link>
+          </div>
+
+          <div className="space-y-4">
+            {events.length > 0 ? (
+              events.map((event, i) => (
+                <MotionDiv
+                  key={event.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Link
+                    href={`/organizer/events/${event.id}/attendees`}
+                    className="flex items-center justify-between p-6 rounded-3xl bg-[#0c1222]/50 border border-white/5 hover:border-cyan-500/30 hover:bg-[#0c1222] transition-all group"
+                  >
+                    <div className="flex items-center gap-6">
+                      <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center text-slate-400 group-hover:text-cyan-400 transition-colors">
+                        <span className="text-[10px] font-bold uppercase tracking-widest">{format(new Date(event.date), 'MMM')}</span>
+                        <span className="text-2xl font-black">{format(new Date(event.date), 'dd')}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-lg text-white mb-1 group-hover:text-cyan-400 transition-colors">{event.title}</h3>
+                        <div className="flex items-center gap-4">
+                           <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-white/5 ${event.status === 'published' ? 'text-green-400' : 'text-yellow-400'}`}>
+                             {event.status}
+                           </span>
+                           <span className="text-xs text-slate-500">{event._count.registrations + event._count.tickets} Attendees</span>
+                        </div>
+                      </div>
+                    </div>
+                    <ArrowRight className="text-slate-700 group-hover:text-cyan-400 transition-colors group-hover:translate-x-1" />
+                  </Link>
+                </MotionDiv>
+              ))
+            ) : (
+              <div className="p-16 rounded-[3rem] border border-dashed border-white/10 text-center space-y-4">
+                <p className="text-slate-500">No events deployed in your sector.</p>
+                <Link href="/organizer/events/new" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-400 text-[#050510] font-bold text-xs uppercase tracking-widest hover:scale-105 transition-transform">
+                  <Plus size={16} /> Create Event
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Quick Actions */}
+        <aside className="space-y-8">
+           <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/20 space-y-6">
+              <h3 className="text-xl font-bold">Quick Operations</h3>
+              <div className="grid gap-3">
+                 <Link href="/organizer/events/new" className="flex items-center justify-between p-4 rounded-2xl bg-black/20 hover:bg-black/40 border border-white/5 transition-all group">
+                    <span className="text-sm font-bold uppercase tracking-widest text-slate-300 group-hover:text-white">Deploy Event</span>
+                    <Plus size={18} className="text-pink-400 group-hover:rotate-90 transition-transform" />
+                 </Link>
+                 <Link href="/organizer/stats" className="flex items-center justify-between p-4 rounded-2xl bg-black/20 hover:bg-black/40 border border-white/5 transition-all group">
+                    <span className="text-sm font-bold uppercase tracking-widest text-slate-300 group-hover:text-white">Global Analytics</span>
+                    <TrendingUp size={18} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+                 </Link>
+              </div>
+           </div>
+
+           <div className="p-8 rounded-[2.5rem] bg-[#0c1222] border border-white/5 space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-slate-500">Organizer Tier</h4>
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 flex items-center justify-center border border-cyan-500/30">
+                    <Zap size={24} className="text-cyan-400" />
+                 </div>
+                 <div>
+                    <p className="font-bold text-white">Elite Node</p>
+                    <p className="text-xs text-slate-500">Verified Builder</p>
+                 </div>
+              </div>
+           </div>
+        </aside>
+      </div>
+    </div>
   );
 }

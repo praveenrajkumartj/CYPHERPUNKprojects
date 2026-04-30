@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const eventId = params.id;
+    const { id: eventId } = await params;
     const userId = session.id as string;
 
-    const rsvp = await prisma.eventAttendee.create({
+    const rsvp = await prisma.registration.create({
       data: {
         userId,
         eventId,
@@ -24,15 +24,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const eventId = params.id;
+    const { id: eventId } = await params;
     const userId = session.id as string;
 
-    await prisma.eventAttendee.delete({
+    await prisma.registration.delete({
       where: {
         userId_eventId: {
           userId,

@@ -5,11 +5,14 @@ import { setSession } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, password, role } = await req.json();
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
+
+    const validRoles = ['MEMBER', 'ORGANIZER'];
+    const userRole = validRoles.includes(role) ? role : 'MEMBER';
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -26,7 +29,7 @@ export async function POST(req: NextRequest) {
         name,
         email,
         password: hashedPassword,
-        role: 'MEMBER',
+        role: userRole,
       },
     });
 

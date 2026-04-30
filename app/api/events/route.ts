@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
           select: { name: true }
         },
         _count: {
-          select: { attendees: true }
+          select: { registrations: true }
         }
       },
       orderBy: { date: 'asc' }

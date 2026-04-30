@@ -14,6 +14,7 @@ export default function RegisterPage() {
     name: '',
     email: '',
     password: '',
+    role: 'MEMBER',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +43,11 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Something went wrong');
       }
 
-      router.push('/');
+      if (data.user.role === 'ORGANIZER' || data.user.role === 'ADMIN') {
+        router.push('/organizer');
+      } else {
+        router.push('/');
+      }
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -124,6 +129,26 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-300 ml-1">Account Type</label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: 'MEMBER' })}
+                  className={`py-3 rounded-xl text-sm font-bold border transition-all ${formData.role === 'MEMBER' ? 'bg-primary/20 border-primary text-primary' : 'bg-white/5 border-white/10 text-slate-500'}`}
+                >
+                  Member
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, role: 'ORGANIZER' })}
+                  className={`py-3 rounded-xl text-sm font-bold border transition-all ${formData.role === 'ORGANIZER' ? 'bg-secondary/20 border-secondary text-secondary' : 'bg-white/5 border-white/10 text-slate-500'}`}
+                >
+                  Organizer
+                </button>
               </div>
             </div>
 

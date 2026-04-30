@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
-import { User, Mail, MapPin, Briefcase, Github, Twitter, Wallet, Loader2, Save, Tag } from 'lucide-react';
+import { User, Mail, MapPin, Briefcase, Code, Wallet, Loader2, Save, Tag } from 'lucide-react';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);

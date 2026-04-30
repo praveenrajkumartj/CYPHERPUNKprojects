@@ -72,10 +72,10 @@ export default function Navbar() {
           {user?.role === 'ORGANIZER' || user?.role === 'ADMIN' ? (
             <Link
               href="/organizer"
-              className={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-secondary ${pathname === '/organizer' ? 'text-secondary' : 'text-slate-400'}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg ${pathname === '/organizer' ? 'bg-secondary text-white shadow-secondary/20' : 'bg-white/5 text-secondary border border-secondary/30 hover:bg-secondary/10 hover:border-secondary'}`}
             >
-              <Rocket size={16} />
-              Organizer
+              <Rocket size={16} className={pathname === '/organizer' ? 'animate-pulse' : ''} />
+              Organizer Hub
             </Link>
           ) : null}
           {user?.role === 'ADMIN' && (

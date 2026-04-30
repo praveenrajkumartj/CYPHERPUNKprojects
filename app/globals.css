@@ -3,49 +3,164 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
-  --color-primary: #8b5cf6;
-  --color-primary-foreground: #ffffff;
-  
-  --color-secondary: #06b6d4;
+  --color-primary: #00ffff;
+  --color-primary-foreground: #050510;
+  --color-secondary: #ff007f;
   --color-secondary-foreground: #ffffff;
-  
-  --color-accent: #f43f5e;
-  --color-accent-foreground: #ffffff;
-  
-  --color-dark-100: #1e293b;
-  --color-dark-200: #0f172a;
-  --color-dark-300: #020617;
-
-  --font-sans: "Inter", var(--font-geist-sans);
+  --color-accent: #ffd700;
+  --color-accent-foreground: #050510;
+  --font-sans: var(--font-geist-sans), Inter, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 }
 
 :root {
-  --background: #020617; /* Dark 300 */
-  --foreground: #f8fafc;
+  --background: #050510;
+  --foreground: #f8fbff;
+  --cyan: #00ffff;
+  --pink: #ff007f;
+  --gold: #ffd700;
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  min-height: 100vh;
+  margin: 0;
+  background: #050510;
+  color: #f8fbff;
   font-family: var(--font-sans);
+  overflow-x: hidden;
 }
 
-/* Glassmorphism utility */
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(0, 255, 255, 0.24);
+  color: #ffffff;
+}
+
 .glass {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(22px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.glass-card {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  transition: all 0.3s ease;
+.glass-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.glass-card:hover {
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+.glass-panel,
+.glass-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-card:hover,
+.glass-panel:hover {
+  transform: translateY(-4px);
+}
+
+.particle-grid {
+  background-image:
+    radial-gradient(circle, rgba(0, 255, 255, 0.16) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255, 0, 127, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px, 32px 32px;
+}
+
+.particle-lines {
+  background-image:
+    linear-gradient(135deg, rgba(0, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(225deg, rgba(255, 0, 127, 0.04) 1px, transparent 1px);
+  background-size: 120px 120px, 140px 140px;
+  transform: translate3d(var(--pointer-x, 0), var(--pointer-y, 0), 0);
+}
+
+.particle-orbit {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(0, 255, 255, 0.14), transparent 22%),
+    radial-gradient(circle at 80% 30%, rgba(255, 0, 127, 0.12), transparent 20%),
+    radial-gradient(circle at 45% 80%, rgba(255, 215, 0, 0.08), transparent 18%);
+}
+
+@keyframes blink {
+  0%,
+  50%,
+  100% {
+    opacity: 1;
+  }
+  25%,
+  75% {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 0.16;
+  }
+  50% {
+    opacity: 0.24;
+  }
+}
+
+.animate-blink {
+  animation: blink 1.2s infinite step-start;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 6s infinite ease-in-out;
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-cyan-300 {
+  color: rgba(0, 255, 255, 0.85);
+}
+
+.text-pink-300 {
+  color: rgba(255, 0, 127, 0.85);
+}
+
+.text-cyan-400 {
+  color: #72fbff;
+}
+
+.text-white {
+  color: #f8fbff;
+}
+
+.border-cyan-200\/20 {
+  border-color: rgba(0, 255, 255, 0.2);
 }

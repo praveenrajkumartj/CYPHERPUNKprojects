@@ -1,129 +1,203 @@
 import Navbar from '@/components/Navbar';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import { Calendar, Users, Briefcase, Plus, ArrowRight } from 'lucide-react';
+import { Calendar, Users, Briefcase, Plus, ArrowRight, Ticket, CheckCircle2, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import MotionDiv from '@/components/MotionDiv';
 
 export default async function DashboardPage() {
   const session = await getSession();
-  if (!session) return null; // Middleware handles redirect
+  if (!session) return null;
 
   const user = await prisma.user.findUnique({
     where: { id: session.id as string },
     include: {
-      attendances: {
+      registrations: {
         include: {
           event: {
             include: { organizer: true }
           }
         }
       },
-      events: true, // Events created by this user
+      tickets: {
+        include: {
+          event: {
+            include: { organizer: true }
+          }
+        }
+      },
+      events: true,
       applications: {
         include: { project: true }
       }
     }
   });
 
+  // Combine and deduplicate events from registrations and tickets
+  const joinedEventsMap = new Map();
+  
+  user?.registrations.forEach(reg => {
+    joinedEventsMap.set(reg.event.id, { ...reg.event, status: 'RSVP Confirmed', icon: Zap, color: 'text-cyan-400' });
+  });
+  
+  user?.tickets.forEach(tkt => {
+    joinedEventsMap.set(tkt.event.id, { ...tkt.event, status: `Booked (${tkt.type})`, icon: Ticket, color: 'text-pink-400' });
+  });
+
+  const joinedEvents = Array.from(joinedEventsMap.values());
+
   return (
-    <main className="min-h-screen bg-dark-300">
+    <main className="min-h-screen bg-[#050510] text-[#f8fbff]">
       <Navbar />
 
       <div className="pt-32 pb-20 container mx-auto px-6">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight mb-2 text-white">Dashboard</h1>
-            <p className="text-slate-400">Welcome back, {session.name}. Here's what's happening.</p>
-          </div>
-          
-          {['ORGANIZER', 'ADMIN'].includes(session.role as string) && (
-            <Link 
-              href="/organizer/events/new"
-              className="px-6 py-3 bg-secondary text-white rounded-xl font-bold flex items-center gap-2 hover:bg-opacity-90 transition-all shadow-lg shadow-secondary/20"
-            >
-              <Plus size={20} />
-              Create Event
-            </Link>
-          )}
-        </div>
+        <header className="mb-12">
+          <MotionDiv 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+              Terminal <span className="text-cyan-400">Dashboard</span>
+            </h1>
+            <p className="text-slate-500 font-mono text-sm tracking-widest uppercase">
+              Authenticated as: {session.name as string} // Role: {session.role as string}
+            </p>
+          </MotionDiv>
+        </header>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Stats Grid */}
-          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { label: 'Events Joined', value: user?.attendances.length || 0, icon: Calendar, color: 'text-primary' },
-              { label: 'Events Created', value: user?.events.length || 0, icon: Users, color: 'text-secondary' },
-              { label: 'Project Applications', value: user?.applications.length || 0, icon: Briefcase, color: 'text-accent' },
-            ].map((stat, i) => (
-              <div key={i} className="glass-card p-6 rounded-2xl flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center ${stat.color}`}>
-                  <stat.icon size={24} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">{stat.label}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                </div>
+        <div className="grid lg:grid-cols-[1fr_350px] gap-12">
+          <div className="space-y-12">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { label: 'Network Entry', value: joinedEvents.length, icon: Calendar, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+                { label: 'Protocols Managed', value: user?.events.length || 0, icon: Users, color: 'text-pink-400', bg: 'bg-pink-500/10' },
+                { label: 'Open Channels', value: user?.applications.length || 0, icon: Briefcase, color: 'text-[#ffd700]', bg: 'bg-[#ffd700]/10' },
+              ].map((stat, i) => (
+                <MotionDiv 
+                  key={i} 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="p-6 rounded-3xl bg-[#0c1222] border border-white/5 flex items-center gap-6"
+                >
+                  <div className={`w-14 h-14 rounded-2xl ${stat.bg} flex items-center justify-center ${stat.color} border border-white/5`}>
+                    <stat.icon size={28} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
+                    <p className="text-3xl font-black text-white">{stat.value}</p>
+                  </div>
+                </MotionDiv>
+              ))}
+            </div>
+
+            {/* My Events */}
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Active Transmissions</h2>
+                <Link href="/events" className="text-xs font-bold uppercase tracking-widest text-cyan-400 hover:text-cyan-300">Browse New Events</Link>
               </div>
-            ))}
+
+              {joinedEvents.length > 0 ? (
+                <div className="grid gap-4">
+                  {joinedEvents.map((event, i) => (
+                    <MotionDiv 
+                      key={event.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.05 }}
+                    >
+                      <Link 
+                        href={`/events/${event.id}`}
+                        className="group flex flex-col md:flex-row md:items-center justify-between p-6 rounded-[2rem] bg-[#0c1222]/50 border border-white/5 hover:border-cyan-500/30 hover:bg-[#0c1222] transition-all gap-6"
+                      >
+                        <div className="flex items-center gap-6">
+                          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center text-slate-400 group-hover:text-cyan-400 transition-colors">
+                            <span className="text-[10px] font-bold uppercase tracking-widest">{format(new Date(event.date), 'MMM')}</span>
+                            <span className="text-2xl font-black">{format(new Date(event.date), 'dd')}</span>
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-xl text-white mb-2 group-hover:text-cyan-400 transition-colors">{event.title}</h3>
+                            <div className="flex flex-wrap gap-4 items-center">
+                               <div className="flex items-center gap-2 text-xs text-slate-500">
+                                  <Users size={14} /> by {event.organizer.name}
+                               </div>
+                               <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest ${event.color}`}>
+                                  <event.icon size={14} /> {event.status}
+                               </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                           <div className="hidden md:block w-32 h-1 bg-white/5 rounded-full overflow-hidden">
+                              <div className={`h-full w-full ${event.color === 'text-cyan-400' ? 'bg-cyan-400' : 'bg-pink-400'} opacity-30`} />
+                           </div>
+                           <ArrowRight className="text-slate-700 group-hover:text-cyan-400 transition-colors group-hover:translate-x-1" />
+                        </div>
+                      </Link>
+                    </MotionDiv>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-16 rounded-[3rem] border border-dashed border-white/10 text-center space-y-6">
+                  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto text-slate-600">
+                     <Calendar size={32} />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-slate-400 font-medium">No active event sequences detected.</p>
+                    <p className="text-sm text-slate-600">Explore the spectrum to find your next objective.</p>
+                  </div>
+                  <Link href="/events" className="inline-block px-8 py-3 rounded-full bg-white text-[#050510] font-bold text-xs tracking-widest hover:scale-105 transition-transform">EXPLORE EVENTS</Link>
+                </div>
+              )}
+            </section>
           </div>
 
-          {/* Joined Events */}
-          <div className="lg:col-span-2 space-y-6">
-            <h2 className="text-2xl font-bold">Upcoming Events</h2>
-            {user?.attendances.length ? (
-              <div className="grid gap-4">
-                {user.attendances.map((att) => (
-                  <Link 
-                    key={att.event.id}
-                    href={`/events/${att.event.id}`}
-                    className="glass-card p-6 rounded-2xl hover:border-primary/50 transition-all flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-6">
-                      <div className="w-16 h-16 rounded-xl bg-primary/10 flex flex-col items-center justify-center text-primary">
-                        <span className="text-xs font-bold uppercase">{format(new Date(att.event.date), 'MMM')}</span>
-                        <span className="text-xl font-black">{format(new Date(att.event.date), 'dd')}</span>
-                      </div>
+          {/* Activity Sidebar */}
+          <aside className="space-y-8">
+            <h2 className="text-2xl font-bold">System Log</h2>
+            <div className="p-8 rounded-[2.5rem] bg-[#0c1222] border border-white/5 space-y-8">
+               <div className="space-y-6">
+                  {[
+                    { label: 'RSVP Synced', desc: 'Hackathon access confirmed', time: '2m ago', color: 'bg-cyan-400' },
+                    { label: 'Profile Update', desc: 'Bio information modified', time: '1h ago', color: 'bg-pink-400' },
+                    { label: 'Security Handshake', desc: 'Wallet connection verified', time: 'Yesterday', color: 'bg-[#ffd700]' },
+                  ].map((log, i) => (
+                    <div key={i} className="flex gap-4 group">
+                      <div className={`w-1.5 h-1.5 rounded-full ${log.color} mt-2 shrink-0 group-hover:scale-150 transition-transform shadow-[0_0_10px_currentColor]`} />
                       <div>
-                        <h3 className="font-bold text-lg mb-1">{att.event.title}</h3>
-                        <p className="text-sm text-slate-500 flex items-center gap-2">
-                          <Users size={14} /> by {att.event.organizer.name}
-                        </p>
+                        <p className="text-xs font-bold text-white uppercase tracking-widest">{log.label}</p>
+                        <p className="text-xs text-slate-500 mt-1">{log.desc}</p>
+                        <p className="text-[10px] text-slate-600 mt-2 font-mono">{log.time}</p>
                       </div>
                     </div>
-                    <ArrowRight className="text-slate-600" />
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="glass p-12 rounded-[2rem] text-center">
-                <p className="text-slate-500 mb-6">You haven't joined any events yet.</p>
-                <Link href="/events" className="text-primary font-bold hover:underline">Explore Events</Link>
-              </div>
-            )}
-          </div>
-
-          {/* Activity/Sidebar */}
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Recent Activity</h2>
-            <div className="glass-card p-6 rounded-[2rem] space-y-6">
-              {/* Mock activity for now */}
-              <div className="flex gap-4">
-                <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
-                <div>
-                  <p className="text-sm text-slate-300">You RSVP'd to <span className="font-bold text-white">EthGlobal London</span></p>
-                  <p className="text-xs text-slate-500 mt-1">2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-2 h-2 rounded-full bg-secondary mt-2 shrink-0" />
-                <div>
-                  <p className="text-sm text-slate-300">Profile updated successfully</p>
-                  <p className="text-xs text-slate-500 mt-1">Yesterday</p>
-                </div>
-              </div>
+                  ))}
+               </div>
+               
+               <div className="pt-8 border-t border-white/5">
+                  <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+                    View Full Security Log
+                  </button>
+               </div>
             </div>
-          </div>
+
+            {/* Quick Actions */}
+            <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/20">
+               <h4 className="text-sm font-bold text-cyan-400 uppercase tracking-widest mb-4">Quick Operations</h4>
+               <div className="space-y-3">
+                  <Link href="/organizer/events/new" className="flex items-center justify-between p-4 rounded-xl bg-black/20 hover:bg-black/40 transition-colors border border-white/5 group">
+                     <span className="text-xs font-bold text-white uppercase tracking-widest">Create Event</span>
+                     <Plus size={16} className="text-cyan-400 group-hover:rotate-90 transition-transform" />
+                  </Link>
+                  <Link href="/profile" className="flex items-center justify-between p-4 rounded-xl bg-black/20 hover:bg-black/40 transition-colors border border-white/5 group">
+                     <span className="text-xs font-bold text-white uppercase tracking-widest">Update Profile</span>
+                     <ArrowRight size={16} className="text-slate-500 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+               </div>
+            </div>
+          </aside>
         </div>
       </div>
     </main>

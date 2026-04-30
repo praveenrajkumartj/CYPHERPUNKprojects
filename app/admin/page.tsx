@@ -2,6 +2,7 @@ import Navbar from '@/components/Navbar';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { Users, Calendar, Briefcase, TrendingUp, Shield, Trash2, CheckCircle } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default async function AdminDashboard() {
   const session = await getSession();

@@ -41,7 +41,11 @@ export default function LoginPage() {
         throw new Error(data.error || 'Invalid email or password');
       }
 
-      router.push('/');
+      if (data.user.role === 'ORGANIZER' || data.user.role === 'ADMIN') {
+        router.push('/organizer');
+      } else {
+        router.push('/');
+      }
       router.refresh();
     } catch (err: any) {
       setError(err.message);
