@@ -4,26 +4,60 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   Users, 
-  MessageSquare, 
   Zap, 
   Shield, 
   Trophy, 
   Globe, 
-  Rocket, 
   Cpu, 
-  MessageCircle, 
-  Code, 
-  Video, 
-  Send, 
-  Mail, 
-  MapPin, 
+  ArrowRight,
+  MessageCircle,
+  MessageSquare,
+  Code,
+  Mail,
+  MapPin,
   Phone,
   ExternalLink,
-  ChevronRight,
-  ArrowRight
+  Send,
+  Video
 } from 'lucide-react';
+import DiscordCard from '@/components/community/DiscordCard';
+import TelegramCard from '@/components/community/TelegramCard';
+import ActivityFeed from '@/components/community/ActivityFeed';
+import MemberHighlights from '@/components/community/MemberHighlights';
+import RankingModal from '@/components/community/RankingModal';
+import SocialConversationGrid from '@/components/community/SocialConversationGrid';
+import ContactForm from '@/components/community/ContactForm';
+import { useState, useEffect } from 'react';
+import { getMemberRank } from './actions';
 
 export default function CommunityPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState('');
+  const [userRank, setUserRank] = useState<number | null>(null);
+  const [contributionScore, setContributionScore] = useState(0);
+  const [projectsCount, setProjectsCount] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/profile')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.id) {
+          setIsLoggedIn(true);
+          setUserId(data.id);
+          setUserName(data.name);
+          setContributionScore(data.contributionScore || 0);
+          setProjectsCount(data.projects?.length || 0);
+          
+          getMemberRank(data.id).then(res => {
+            if (res.success) setUserRank(res.rank!);
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const benefits = [
     { title: 'World-Class Mentorship', icon: Users, desc: 'Connect with industry pioneers and seasoned blockchain experts.', color: 'cyan' },
     { title: 'Exclusive Events', icon: Zap, desc: 'Early access to hackathons, meetups, and private workshops.', color: 'pink' },
@@ -31,12 +65,6 @@ export default function CommunityPage() {
     { title: 'Privacy First Tools', icon: Shield, desc: 'Exclusive access to our proprietary suite of privacy-preserving tools.', color: 'yellow' },
     { title: 'Early Access Beta', icon: Cpu, desc: 'Be the first to test and shape the next generation of Web3 protocols.', color: 'purple' },
     { title: 'Grant Support', icon: Trophy, desc: 'Financial backing for innovative projects that align with our mission.', color: 'orange' }
-  ];
-
-  const topics = [
-    { title: 'Future of Zero-Knowledge Rollups', category: 'TECH', date: '2h ago', replies: 24, color: 'cyan' },
-    { title: 'Community Governance Proposal #42', category: 'GOV', date: '5h ago', replies: 89, color: 'pink' },
-    { title: 'Upcoming Regional Meetups: Q4 2025', category: 'GENERAL', date: '1d ago', replies: 12, color: 'yellow' }
   ];
 
   const getColorStyles = (color: string) => {
@@ -90,30 +118,102 @@ export default function CommunityPage() {
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
             className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-8"
           >
-            Join the <span className="text-transparent bg-gradient-to-r from-cyan-400 via-pink-500 to-purple-500 bg-clip-text">Revolution</span>
+            The Heart of <span className="text-transparent bg-gradient-to-r from-cyan-400 via-pink-500 to-purple-500 bg-clip-text text-glow">Web3</span>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg text-slate-400 leading-relaxed mb-10 max-w-2xl mx-auto"
           >
-            Become part of a global community of Web3 builders, researchers, and privacy advocates. Connect with like-minded individuals and shape the future of technology.
+            A modular social ecosystem for the next generation of builders. Real-time updates, deep integrations, and absolute privacy.
           </motion.p>
           
           <motion.div 
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <button className="bg-cyan-400 text-[#050510] px-8 py-4 rounded-xl text-xs font-bold tracking-[0.2em] uppercase hover:bg-cyan-300 transition shadow-[0_0_30px_rgba(0,255,255,0.2)] flex items-center gap-2">
-               <Users className="w-4 h-4" /> BECOME A MEMBER
-            </button>
-            <button className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-xl text-xs font-bold tracking-[0.2em] uppercase hover:bg-white/10 transition flex items-center gap-2">
-               <MessageSquare className="w-4 h-4" /> EXPLORE FORUMS
-            </button>
+            {isLoggedIn ? (
+              <>
+                <button 
+                  onClick={() => setIsModalOpen(true)}
+                  className="bg-cyan-400 text-[#050510] px-8 py-4 rounded-xl text-xs font-bold tracking-[0.2em] uppercase hover:bg-cyan-300 transition shadow-[0_0_30px_rgba(0,255,255,0.2)] flex items-center gap-2"
+                >
+                  <Trophy className="w-4 h-4" /> MY RANKING: #{userRank || '---'}
+                </button>
+                <Link href="#activity" className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-xl text-xs font-bold tracking-[0.2em] uppercase hover:bg-white/10 transition flex items-center gap-2">
+                   <Zap className="w-4 h-4" /> VIEW ACTIVITY
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/register" className="bg-cyan-400 text-[#050510] px-8 py-4 rounded-xl text-xs font-bold tracking-[0.2em] uppercase hover:bg-cyan-300 transition shadow-[0_0_30px_rgba(0,255,255,0.2)] flex items-center gap-2">
+                   <Users className="w-4 h-4" /> BECOME A MEMBER
+                </Link>
+                <Link href="#activity" className="bg-white/5 border border-white/10 text-white px-8 py-4 rounded-xl text-xs font-bold tracking-[0.2em] uppercase hover:bg-white/10 transition flex items-center gap-2">
+                   <Zap className="w-4 h-4" /> VIEW ACTIVITY
+                </Link>
+              </>
+            )}
           </motion.div>
         </div>
       </section>
 
-      {/* Benefits Grid */}
+      {/* Integration Layer - Discord & Telegram */}
+      <section className="relative z-10 py-12 px-6">
+        <div className="container mx-auto max-w-6xl grid md:grid-cols-2 gap-6">
+           <DiscordCard />
+           <TelegramCard />
+        </div>
+      </section>
+
+      {/* Activity Feed Section */}
+      <section id="activity" className="relative z-10 py-24 px-6 bg-[#050814]/50 border-y border-white/5">
+        <div className="container mx-auto max-w-6xl">
+           <div className="text-center mb-16">
+              <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-pink-500 mb-4">REAL-TIME PULSE</p>
+              <h2 className="text-4xl font-bold text-white mb-4">Platform <span className="text-transparent bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text">Activity</span></h2>
+              <p className="text-slate-500 text-sm max-w-md mx-auto">Watch the Cyberphunk ecosystem evolve in real-time. New projects, new members, and new opportunities.</p>
+           </div>
+           
+           <div className="max-w-3xl mx-auto">
+              <ActivityFeed />
+           </div>
+        </div>
+      </section>
+
+      {/* Member Highlights Section */}
+      <section id="rankings" className="relative z-10 py-24 px-6">
+         <div className="container mx-auto max-w-6xl">
+            <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+               <div className="max-w-xl">
+                  <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-cyan-400 mb-4">HALL OF FAME</p>
+                  <h2 className="text-4xl font-bold text-white mb-4 flex items-center gap-4">
+                     Top <span className="text-transparent bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text">Contributors</span>
+                     {userRank && (
+                        <span className="text-xs font-black px-3 py-1 rounded-lg bg-cyan-400/10 border border-cyan-400/30 text-cyan-400 uppercase tracking-tighter shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+                           Your Rank: #{userRank}
+                        </span>
+                     )}
+                  </h2>
+                  <p className="text-slate-500 text-sm">Recognizing the builders, mentors, and pioneers who are shaping our community through consistent contribution.</p>
+               </div>
+               {isLoggedIn ? (
+                  <button 
+                    onClick={() => setIsModalOpen(true)}
+                    className="text-xs font-bold text-cyan-400 hover:underline uppercase tracking-widest flex items-center gap-2 mb-2"
+                  >
+                    VIEW MY RANKING <ArrowRight className="w-4 h-4" />
+                  </button>
+               ) : (
+                  <Link href="/register" className="text-xs font-bold text-cyan-400 hover:underline uppercase tracking-widest flex items-center gap-2 mb-2">
+                    JOIN THE RANKINGS <ArrowRight className="w-4 h-4" />
+                  </Link>
+               )}
+            </div>
+            
+            <MemberHighlights currentUserId={userId} />
+         </div>
+      </section>
+
       <section className="relative z-10 py-24 px-6 bg-[#050814]/50 border-t border-white/5">
         <div className="container mx-auto max-w-6xl text-center">
            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-pink-500 mb-4">MEMBERSHIP PERKS</p>
@@ -133,34 +233,6 @@ export default function CommunityPage() {
                     <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
                  </motion.div>
               ))}
-           </div>
-           
-           {/* Forum Snippet */}
-           <div className="mt-20 max-w-2xl mx-auto rounded-3xl border border-white/5 bg-[#080b19] p-8 text-left">
-              <div className="flex items-center justify-between mb-8">
-                 <h5 className="text-sm font-bold tracking-widest uppercase flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-cyan-400" /> Recent Forum Topics
-                 </h5>
-                 <Link href="#" className="text-[10px] font-bold text-cyan-400 hover:underline uppercase tracking-widest">View All</Link>
-              </div>
-              
-              <div className="space-y-4">
-                 {topics.map((topic, i) => (
-                    <div key={i} className="group p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-colors cursor-pointer">
-                       <div className="flex items-center gap-4">
-                          <span className={`px-2 py-0.5 rounded text-[8px] font-black tracking-tighter border ${getColorStyles(topic.color)}`}>
-                             {topic.category}
-                          </span>
-                          <p className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">{topic.title}</p>
-                       </div>
-                       <div className="flex items-center gap-4 text-[10px] text-slate-500 font-bold uppercase">
-                          <span>{topic.replies} REPLIES</span>
-                          <span className="w-1 h-1 rounded-full bg-slate-700" />
-                          <span>{topic.date}</span>
-                       </div>
-                    </div>
-                 ))}
-              </div>
            </div>
         </div>
       </section>
@@ -218,29 +290,7 @@ export default function CommunityPage() {
         <div className="container mx-auto max-w-6xl text-center">
            <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-cyan-400 mb-4">STAY CONNECTED</p>
            <h2 className="text-4xl font-bold text-white mb-16">Join the <span className="text-transparent bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text">Conversation</span></h2>
-           
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                { name: 'X / Twitter', handle: '@cyberphunk', icon: MessageCircle, color: 'text-white' },
-                { name: 'Discord', handle: 'Cyberphunk Server', icon: MessageSquare, color: 'text-[#5865F2]' },
-                { name: 'Telegram', handle: 't.me/cyberphunk', icon: Send, color: 'text-[#229ED9]' },
-                { name: 'GitHub', handle: 'cyberphunk-dev', icon: Code, color: 'text-white' },
-                { name: 'YouTube', handle: 'Cyberphunk Labs', icon: Video, color: 'text-[#FF0000]' }
-              ].map((social, i) => (
-                 <div key={i} className="group p-6 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
-                    <div className="flex items-center gap-4">
-                       <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center ${social.color}`}>
-                          <social.icon className="w-5 h-5" />
-                       </div>
-                       <div className="text-left">
-                          <p className="text-sm font-bold text-white">{social.name}</p>
-                          <p className="text-[10px] text-slate-500 font-bold uppercase">{social.handle}</p>
-                       </div>
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-cyan-400 transition-colors" />
-                 </div>
-              ))}
-           </div>
+           <SocialConversationGrid />
         </div>
       </section>
 
@@ -287,35 +337,7 @@ export default function CommunityPage() {
                </div>
             </div>
             
-            <div className="rounded-[2.5rem] bg-[#0a0f1d] border border-white/10 p-10 shadow-2xl relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 blur-[80px]" />
-               <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                  <div className="grid md:grid-cols-2 gap-6">
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Your Name</label>
-                        <input type="text" placeholder="John Doe" className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
-                     </div>
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-                        <input type="email" placeholder="john@example.com" className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
-                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Subject</label>
-                     <input type="text" placeholder="How can we help?" className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-colors" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Message</label>
-                     <textarea placeholder="Write your message here..." rows={4} className="w-full bg-white/5 border border-white/5 rounded-2xl px-6 py-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-colors resize-none" />
-                  </div>
-                  
-                  <button className="w-full bg-cyan-400 text-[#050510] px-8 py-5 rounded-2xl text-xs font-bold tracking-[0.2em] uppercase hover:bg-cyan-300 transition-all shadow-[0_0_40px_rgba(0,255,255,0.2)] flex items-center justify-center gap-2">
-                     <Send className="w-4 h-4" /> SEND MESSAGE
-                  </button>
-               </form>
-            </div>
+            <ContactForm />
          </div>
       </section>
 
@@ -329,11 +351,16 @@ export default function CommunityPage() {
                <Zap className="w-12 h-12 text-orange-400 mx-auto mb-8 animate-pulse" />
                <h2 className="text-4xl md:text-6xl font-black text-white mb-8 leading-tight">The Code Cannot <span className="text-transparent bg-gradient-to-r from-cyan-400 via-pink-500 to-purple-500 bg-clip-text italic">Be Stopped</span></h2>
                <p className="text-slate-400 text-lg mb-12 max-w-xl mx-auto">
-                  We are building the future of the internet. No gatekeepers, no censorship. Join the movement today.
+                  {isLoggedIn 
+                    ? "You are now part of the resistance. Continue building the decentralized future with us." 
+                    : "We are building the future of the internet. No gatekeepers, no censorship. Join the movement today."}
                </p>
-               <button className="bg-cyan-400 text-[#050510] px-12 py-5 rounded-full text-xs font-bold tracking-[0.3em] uppercase hover:bg-cyan-300 transition-all shadow-[0_0_50px_rgba(0,255,255,0.3)]">
-                  START YOUR JOURNEY
-               </button>
+               <Link 
+                 href={isLoggedIn ? "/dashboard" : "/register"}
+                 className="inline-block bg-cyan-400 text-[#050510] px-12 py-5 rounded-full text-xs font-bold tracking-[0.3em] uppercase hover:bg-cyan-300 transition-all shadow-[0_0_50px_rgba(0,255,255,0.3)] hover:scale-105 active:scale-95"
+               >
+                  {isLoggedIn ? 'BACK TO DASHBOARD' : 'START YOUR JOURNEY'}
+               </Link>
             </motion.div>
             
             {/* Background Glow */}
@@ -401,6 +428,14 @@ export default function CommunityPage() {
            </div>
         </div>
       </footer>
+      <RankingModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        userRank={userRank}
+        contributionScore={contributionScore}
+        projectsCount={projectsCount}
+        userName={userName}
+      />
     </main>
   );
 }

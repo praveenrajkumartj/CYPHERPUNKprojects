@@ -33,6 +33,15 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Log community activity
+    await prisma.activityLog.create({
+      data: {
+        type: 'USER_JOINED',
+        message: `joined the Cyberphunk revolution!`,
+        userId: user.id,
+      }
+    });
+
     const sessionData = {
       id: user.id,
       name: user.name,

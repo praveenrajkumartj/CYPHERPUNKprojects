@@ -1,71 +1,77 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Search, Clock, User, ArrowRight, Share2, Bookmark } from 'lucide-react';
+import { Calendar, Clock, ArrowRight, Search, User, Share2, Bookmark, Lightbulb, Video, Trophy } from 'lucide-react';
+
+interface Article {
+  id: string;
+  title: string;
+  excerpt: string;
+  coverImage?: string;
+  tags: string[];
+  readTime?: number;
+  createdAt: string;
+  author: { name: string; email: string };
+}
 
 export default function BlogPage() {
-  const categories = ['ALL', 'Privacy', 'Bitcoin', 'DeFi', 'NFTs', 'Blockchain'];
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTag, setSelectedTag] = useState('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
 
-  const posts = [
-    {
-      title: 'Bitcoin at 1k: From Cypherpunk Dream to Global Reserve',
-      badge: 'BITCOIN',
-      color: 'yellow',
-      image: '/images/blog_bitcoin.png',
-      description: 'How Satoshi Nakamoto\'s white paper transformed from a mailing list post to the foundation of a $3 trillion asset class.',
-      author: 'Satoshi_Successor',
-      date: 'Oct 14, 2025'
-    },
-    {
-      title: 'DeFi Summer 2.0: The Protocols Rewriting Finance',
-      badge: 'DEFI',
-      color: 'pink',
-      image: '/images/project_nexusdex.png',
-      description: 'A deep dive into the latest wave of decentralized finance protocols that are challenging traditional banking institutions.',
-      author: 'Yield_Hunter',
-      date: 'Oct 12, 2025'
-    },
-    {
-      title: 'Zero-Knowledge Proofs: The Math Behind Private Transactions',
-      badge: 'PRIVACY',
-      color: 'cyan',
-      image: '/images/project_nodeguard.png',
-      description: 'Understanding ZK-SNARKs and ZK-STARKs — the cryptographic magic that enables Zcash, StarkNet, and Aleo.',
-      author: 'Zero_Alice',
-      date: 'Oct 10, 2025'
-    },
-    {
-      title: 'NFTs Beyond Art: The Next Chapter for Digital Ownership',
-      badge: 'NFTS',
-      color: 'purple',
-      image: '/images/project_cyberknights.png',
-      description: 'How non-fungible tokens are evolving from profile pictures to real-world asset tokenization and digital identity.',
-      author: 'NFT_Star',
-      date: 'Oct 08, 2025'
-    },
-    {
-      title: 'Solana vs Ethereum: The Layer-1 Wars of 2025',
-      badge: 'BLOCKCHAIN',
-      color: 'emerald',
-      image: '/images/project_cybersync.png',
-      description: 'Analyzing technical and ecosystem differences between the two dominant smart contract platforms.',
-      author: 'Matrix_Master',
-      date: 'Oct 05, 2025'
-    }
-  ];
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const res = await fetch('/api/articles?published=true');
+        const data = await res.json();
+        setArticles(data.articles || []);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const getColorClasses = (color: string) => {
-    switch (color) {
-      case 'cyan': return { text: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' };
-      case 'pink': return { text: 'text-pink-500', bg: 'bg-pink-500/10', border: 'border-pink-500/30' };
-      case 'yellow': return { text: 'text-[#ffd700]', bg: 'bg-[#ffd700]/10', border: 'border-[#ffd700]/30' };
-      case 'emerald': return { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' };
-      case 'purple': return { text: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30' };
-      default: return { text: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' };
+    fetchArticles();
+  }, []);
+
+  useEffect(() => {
+    let filtered = articles;
+
+    if (selectedTag && selectedTag !== 'ALL') {
+      filtered = filtered.filter(article => article.tags.includes(selectedTag));
     }
+
+    if (searchQuery) {
+      filtered = filtered.filter(
+        article =>
+          article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          article.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredArticles(filtered);
+  }, [articles, selectedTag, searchQuery]);
+
+  const categories = ['ALL', ...Array.from(new Set(articles.flatMap(article => article.tags)))];
+
+  const getColorClasses = (tag: string) => {
+    const tagUpper = tag.toUpperCase();
+    if (tagUpper.includes('BITCOIN')) return { text: 'text-[#ffd700]', bg: 'bg-[#ffd700]/10', border: 'border-[#ffd700]/30' };
+    if (tagUpper.includes('DEFI')) return { text: 'text-pink-500', bg: 'bg-pink-500/10', border: 'border-pink-500/30' };
+    if (tagUpper.includes('PRIVACY')) return { text: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' };
+    if (tagUpper.includes('BLOCKCHAIN')) return { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' };
+    if (tagUpper.includes('NFT')) return { text: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30' };
+    return { text: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' };
   };
+
+  const featuredArticle = filteredArticles.length > 0 ? filteredArticles[0] : null;
+  const gridArticles = filteredArticles.length > 1 ? filteredArticles.slice(1) : filteredArticles;
 
   return (
     <main className="relative min-h-screen bg-[#050510] text-[#f8fbff] overflow-x-hidden selection:bg-cyan-500/30">
@@ -87,6 +93,7 @@ export default function BlogPage() {
               Blog
               <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-cyan-400 rounded-full" />
             </Link>
+            <Link href="/learn" className="transition hover:text-white uppercase text-xs tracking-widest">Learn</Link>
             <Link href="/community" className="transition hover:text-white uppercase text-xs tracking-widest">Community</Link>
           </div>
           <Link href="/register" className="rounded-full border border-pink-500 bg-transparent px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-pink-500 transition hover:bg-pink-500/10">Sign In</Link>
@@ -118,122 +125,201 @@ export default function BlogPage() {
         </div>
       </section>
 
+      {/* Learning Hub Quick Links */}
+      <section className="relative z-10 py-6 px-6 border-y border-white/5 bg-[#0a0f1d]/30">
+        <div className="container mx-auto max-w-6xl">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-12">
+            <Link href="/tutorials" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-pink-500/10 text-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Lightbulb size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tutorials</p>
+                <p className="text-sm font-bold text-white group-hover:text-pink-500 transition-colors">Start Learning</p>
+              </div>
+            </Link>
+
+            <div className="hidden md:block w-[1px] h-8 bg-white/10"></div>
+
+            <Link href="/sessions" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-orange-400/10 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Video size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sessions</p>
+                <p className="text-sm font-bold text-white group-hover:text-orange-400 transition-colors">Watch Workshops</p>
+              </div>
+            </Link>
+
+            <div className="hidden md:block w-[1px] h-8 bg-white/10"></div>
+
+            <Link href="/guides" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-yellow-400/10 text-yellow-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Trophy size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Guides</p>
+                <p className="text-sm font-bold text-white group-hover:text-yellow-400 transition-colors">Hackathon Tips</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Filter Bar */}
       <section className="relative z-10 py-8 px-6">
         <div className="container mx-auto max-w-6xl">
-          <div className="p-2 rounded-2xl bg-[#080b19]/80 backdrop-blur-xl border border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-             <div className="relative w-full md:w-96">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input 
-                  type="text" 
-                  placeholder="Search articles..." 
-                  className="w-full bg-white/5 border border-white/5 rounded-xl py-3 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 transition-colors"
-                />
-             </div>
-             
-             <div className="flex flex-wrap gap-2 justify-center">
-                {categories.map((cat, i) => (
-                   <button 
-                      key={i} 
-                      className={`px-5 py-2 rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all ${i === 0 ? 'bg-cyan-400 text-[#050510] shadow-[0_0_20px_rgba(0,255,255,0.3)]' : 'bg-white/5 text-slate-400 border border-white/5 hover:border-white/20 hover:text-white'}`}
-                   >
-                      {cat}
-                   </button>
-                ))}
-             </div>
+          {/* Search Row */}
+          <div className="mb-3">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input
+                type="text"
+                placeholder="Search articles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#080b19]/80 backdrop-blur-xl border border-white/5 rounded-2xl py-3 pl-12 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 transition-colors"
+              />
+            </div>
+          </div>
+          {/* Category Pills Row — scrollable, never clipped */}
+          <div className="overflow-x-auto no-scrollbar">
+            <div className="flex gap-2 py-1 px-1" style={{ width: 'max-content' }}>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedTag(cat)}
+                  className={`shrink-0 px-5 py-2 rounded-xl text-[10px] font-bold tracking-widest uppercase transition-all whitespace-nowrap ${selectedTag === cat ? 'bg-cyan-400 text-[#050510] shadow-[0_0_20px_rgba(0,255,255,0.3)]' : 'bg-[#080b19]/80 backdrop-blur-xl text-slate-400 border border-white/5 hover:border-white/20 hover:text-white'}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Featured Post */}
-      <section className="relative z-10 py-12 px-6">
-        <div className="container mx-auto max-w-6xl">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-            className="rounded-[2.5rem] border border-white/5 bg-[#080b19] overflow-hidden flex flex-col lg:flex-row group"
-          >
-            <div className="lg:w-1/2 relative h-80 lg:h-auto overflow-hidden">
-               <Image src="/images/blog_featured.png" alt="Cypherpunk Manifesto" fill className="object-cover transform group-hover:scale-105 transition-transform duration-700" />
-               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#080b19]/20 to-[#080b19] hidden lg:block" />
-               <div className="absolute inset-0 bg-gradient-to-t from-[#080b19] to-transparent lg:hidden" />
-            </div>
-            
-            <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
-               <div className="flex flex-wrap gap-3 mb-8">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase bg-[#ffd700]/10 text-[#ffd700] border border-[#ffd700]/30 flex items-center gap-1">
-                     <Clock className="w-3 h-3" /> FEATURED
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                     PRIVACY
-                  </span>
-               </div>
-               
-               <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">The Cypherpunk Manifesto: Why Privacy Is Not Optional</h3>
-               <p className="text-slate-400 leading-relaxed mb-10 text-lg">
-                  Revisiting the seminal 1993 document that predicted the privacy battles of the digital age — and why its lessons matter more than ever.
-               </p>
-               
-               <div className="flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 p-[1px]">
-                        <div className="w-full h-full rounded-full bg-[#050510] flex items-center justify-center text-[10px] font-bold">EH</div>
-                     </div>
-                     <div>
-                        <p className="text-sm font-bold text-white">Eric Hughes</p>
-                        <p className="text-xs text-slate-500">12 min read</p>
-                     </div>
-                  </div>
-                  
-                  <Link href="#" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-cyan-400 hover:bg-cyan-400 hover:text-[#050510] transition-all">
-                     <ArrowRight className="w-5 h-5" />
-                  </Link>
-               </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {featuredArticle && !searchQuery && selectedTag === 'ALL' && (
+        <section className="relative z-10 py-12 px-6">
+          <div className="container mx-auto max-w-6xl">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
+              className="rounded-[2.5rem] border border-white/5 bg-[#080b19] overflow-hidden flex flex-col lg:flex-row group"
+            >
+              <div className="lg:w-1/2 relative h-80 lg:h-auto overflow-hidden">
+                <img 
+                  src={featuredArticle.coverImage || '/images/blog_featured.png'} 
+                  alt={featuredArticle.title} 
+                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=2000';
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#080b19]/20 to-[#080b19] hidden lg:block" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#080b19] to-transparent lg:hidden" />
+              </div>
+              
+              <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center">
+                <div className="flex flex-wrap gap-3 mb-8">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase bg-[#ffd700]/10 text-[#ffd700] border border-[#ffd700]/30 flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> FEATURED
+                    </span>
+                    {featuredArticle.tags.map(tag => {
+                      const styles = getColorClasses(tag);
+                      return (
+                        <span key={tag} className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${styles.bg} ${styles.text} border ${styles.border}`}>
+                          {tag}
+                        </span>
+                      );
+                    })}
+                </div>
+                
+                <h3 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">{featuredArticle.title}</h3>
+                <p className="text-slate-400 leading-relaxed mb-10 text-lg line-clamp-3">
+                  {featuredArticle.excerpt}
+                </p>
+                
+                <div className="flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 p-[1px]">
+                          <div className="w-full h-full rounded-full bg-[#050510] flex items-center justify-center text-[10px] font-bold">
+                            {featuredArticle.author.name.charAt(0)}
+                          </div>
+                      </div>
+                      <div>
+                          <p className="text-sm font-bold text-white">{featuredArticle.author.name}</p>
+                          <p className="text-xs text-slate-500">{featuredArticle.readTime || 5} min read</p>
+                      </div>
+                    </div>
+                    
+                    <Link href={`/blog/${featuredArticle.id}`} className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-cyan-400 hover:bg-cyan-400 hover:text-[#050510] transition-all">
+                      <ArrowRight className="w-5 h-5" />
+                    </Link>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Blog Grid */}
       <section className="relative z-10 py-16 px-6">
         <div className="container mx-auto max-w-6xl">
-           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {posts.map((post, i) => {
-                 const styles = getColorClasses(post.color);
-                 return (
-                    <motion.div 
-                       key={i}
-                       initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
-                       className="group rounded-3xl border border-white/5 bg-[#0a0f1d] flex flex-col overflow-hidden hover:border-white/10 transition-all hover:-translate-y-2 shadow-2xl shadow-black/50"
-                    >
-                       <div className="relative h-56 overflow-hidden">
-                          <Image src={post.image} alt={post.title} fill className="object-cover transform group-hover:scale-110 transition-transform duration-700" />
-                          <div className="absolute top-6 left-6">
-                             <span className={`px-3 py-1 rounded-lg text-[10px] font-bold tracking-widest uppercase bg-[#050510]/80 backdrop-blur-md border ${styles.border} ${styles.text}`}>
-                                {post.badge}
-                             </span>
-                          </div>
-                       </div>
-                       
-                       <div className="p-8 flex flex-col flex-grow">
-                          <h4 className="text-xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-tight">{post.title}</h4>
-                          <p className="text-sm text-slate-400 leading-relaxed mb-8 flex-grow line-clamp-3">{post.description}</p>
-                          
-                          <div className="flex items-center justify-between pt-6 border-t border-white/5 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-                             <span className="flex items-center gap-2 tracking-[0.2em]"><User className="w-3 h-3 text-cyan-400" /> {post.author}</span>
-                             <span>{post.date}</span>
-                          </div>
-                       </div>
-                    </motion.div>
-                 );
-              })}
-           </div>
+           {loading ? (
+             <div className="text-center py-20 text-slate-400">Loading dynamic data from the matrix...</div>
+           ) : filteredArticles.length === 0 ? (
+             <div className="text-center py-20 text-slate-400">No articles found in this sector.</div>
+           ) : (
+             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {gridArticles.map((post, i) => {
+                   const styles = getColorClasses(post.tags[0] || '');
+                   return (
+                      <motion.div 
+                         key={post.id}
+                         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
+                         className="group rounded-3xl border border-white/5 bg-[#0a0f1d] flex flex-col overflow-hidden hover:border-white/10 transition-all hover:-translate-y-2 shadow-2xl shadow-black/50"
+                      >
+                         <Link href={`/blog/${post.id}`}>
+                           <div className="relative h-56 overflow-hidden">
+                              <img 
+                                src={post.coverImage || '/images/blog_bitcoin.png'} 
+                                alt={post.title} 
+                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" 
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800';
+                                }}
+                              />
+                              <div className="absolute top-6 left-6">
+                                 <span className={`px-3 py-1 rounded-lg text-[10px] font-bold tracking-widest uppercase bg-[#050510]/80 backdrop-blur-md border ${styles.border} ${styles.text}`}>
+                                    {post.tags[0] || 'GENERAL'}
+                                 </span>
+                              </div>
+                           </div>
+                           
+                           <div className="p-8 flex flex-col flex-grow">
+                              <h4 className="text-xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors line-clamp-2 leading-tight">{post.title}</h4>
+                              <p className="text-sm text-slate-400 leading-relaxed mb-8 flex-grow line-clamp-3">{post.excerpt}</p>
+                              
+                              <div className="flex items-center justify-between pt-6 border-t border-white/5 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                                 <span className="flex items-center gap-2 tracking-[0.2em]"><User className="w-3 h-3 text-cyan-400" /> {post.author.name}</span>
+                                 <span>{new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                              </div>
+                           </div>
+                         </Link>
+                      </motion.div>
+                   );
+                })}
+             </div>
+           )}
            
-           {/* Pagination / Load More */}
-           <div className="mt-20 text-center">
-              <button className="px-10 py-4 rounded-full border border-white/10 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white/5 transition-all">
-                 Load More Articles
-              </button>
-           </div>
+           {!loading && filteredArticles.length > 0 && (
+             <div className="mt-20 text-center">
+                <button className="px-10 py-4 rounded-full border border-white/10 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white/5 transition-all">
+                   Load More Articles
+                </button>
+             </div>
+           )}
         </div>
       </section>
 

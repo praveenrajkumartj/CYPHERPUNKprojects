@@ -1,0 +1,157 @@
+﻿[
+  {
+    "id": "cmomt24e40015ocva3xc5j2ch",
+    "title": "How to Win a Web3 Hackathon",
+    "description": "Patrick Collins shares the ultimate strategy for building winning projects at Web3 hackathons, focusing on MVP focus and presentation.",
+    "videoUrl": "https://www.youtube.com/embed/n_W728EwP8E",
+    "thumbnail": "https://img.youtube.com/vi/n_W728EwP8E/hqdefault.jpg",
+    "eventName": "Cyfrin Updraft",
+    "date": "2026-05-10T10:00:00.000Z",
+    "tags": [
+      "Hackathon",
+      "Workshop"
+    ],
+    "createdAt": "2026-05-01T11:04:09.916Z"
+  },
+  {
+    "id": "cmomt24e80016ocvaw6lm308u",
+    "title": "Zero Knowledge Proofs - Explained",
+    "description": "A comprehensive visual explanation of ZK-Proofs and how they enable privacy-preserving transactions on the blockchain.",
+    "videoUrl": "https://www.youtube.com/embed/H59v6-E97S4",
+    "thumbnail": "https://img.youtube.com/vi/H59v6-E97S4/hqdefault.jpg",
+    "eventName": "Simply Explained",
+    "date": "2026-04-20T14:00:00.000Z",
+    "tags": [
+      "ZKProofs",
+      "Cryptography"
+    ],
+    "createdAt": "2026-05-01T11:04:09.920Z"
+  },
+  {
+    "id": "cmomt24ea0017ocvaapind8b3",
+    "title": "Solana Proof of History Explained",
+    "description": "Dive deep into Solana's core innovation: Proof of History (PoH) and how it enables sub-second block times and high throughput.",
+    "videoUrl": "https://www.youtube.com/embed/0p_fUoGInC8",
+    "thumbnail": "https://img.youtube.com/vi/0p_fUoGInC8/hqdefault.jpg",
+    "eventName": "Solana Foundation",
+    "date": "2026-04-15T10:00:00.000Z",
+    "tags": [
+      "Solana",
+      "Events"
+    ],
+    "createdAt": "2026-05-01T11:04:09.922Z"
+  },
+  {
+    "id": "cmomt24eb0018ocvakx6dapf5",
+    "title": "The History of Cryptography",
+    "description": "From ancient ciphers to RSA and modern zero-knowledge tech. Explore the evolution of encryption through the ages.",
+    "videoUrl": "https://www.youtube.com/embed/f4O6vS0_F3I",
+    "thumbnail": "https://img.youtube.com/vi/f4O6vS0_F3I/hqdefault.jpg",
+    "eventName": "Computerphile",
+    "date": "2026-03-12T09:00:00.000Z",
+    "tags": [
+      "Cryptography",
+      "Education"
+    ],
+    "createdAt": "2026-05-01T11:04:09.923Z"
+  },
+  {
+    "id": "cmomt24ee0019ocva7b6fza42",
+    "title": "Building a Fullstack dApp on Solana",
+    "description": "A hands-on workshop building a decentralized application from scratch using Rust, Anchor, and React.",
+    "videoUrl": "https://www.youtube.com/embed/T_H_x_K-S-I",
+    "thumbnail": "https://img.youtube.com/vi/T_H_x_K-S-I/hqdefault.jpg",
+    "eventName": "Developer Workshop",
+    "date": "2026-03-25T15:00:00.000Z",
+    "tags": [
+      "Solana",
+      "Workshop",
+      "Development"
+    ],
+    "createdAt": "2026-05-01T11:04:09.926Z"
+  },
+  {
+    "id": "cmomt24eg001aocvam2nq5xln",
+    "title": "ZK-SNARKs in a Nutshell",
+    "description": "Understanding the technical implementation of SNARKs and how they compare to STARKs in modern privacy protocols.",
+    "videoUrl": "https://www.youtube.com/embed/h7nS7-7Y6O8",
+    "thumbnail": "https://img.youtube.com/vi/h7nS7-7Y6O8/hqdefault.jpg",
+    "eventName": "ZK Podcast",
+    "date": "2026-02-18T11:00:00.000Z",
+    "tags": [
+      "ZKProofs",
+      "Cryptography"
+    ],
+    "createdAt": "2026-05-01T11:04:09.928Z"
+  },
+  {
+    "id": "cmomt24eh001bocva6gtle2yl",
+    "title": "Public Key Cryptography: RSA Encryption",
+    "description": "Learn the mathematical foundations of RSA and how prime numbers secure the modern internet.",
+    "videoUrl": "https://www.youtube.com/embed/4zahvcJ9glg",
+    "thumbnail": "https://img.youtube.com/vi/4zahvcJ9glg/hqdefault.jpg",
+    "eventName": "Art of the Problem",
+    "date": "2026-01-30T10:00:00.000Z",
+    "tags": [
+      "Cryptography"
+    ],
+    "createdAt": "2026-05-01T11:04:09.929Z"
+  },
+  {
+    "id": "cmomt24ei001cocva6tnof5zw",
+    "title": "What is Solana? Deep Dive",
+    "description": "A complete overview of the Solana ecosystem, architecture, and its potential for high-performance DeFi.",
+    "videoUrl": "https://www.youtube.com/embed/yA8Z9rX3X_8",
+    "thumbnail": "https://img.youtube.com/vi/yA8Z9rX3X_8/hqdefault.jpg",
+    "eventName": "Coin Bureau",
+    "date": "2025-12-20T14:00:00.000Z",
+    "tags": [
+      "Solana",
+      "Events"
+    ],
+    "createdAt": "2026-05-01T11:04:09.930Z"
+  },
+  {
+    "id": "cmomt24ej001docvahkyqu7hv",
+    "title": "Solana Breakpoint Highlights",
+    "description": "The best moments and announcements from the Solana Breakpoint global conference.",
+    "videoUrl": "https://www.youtube.com/embed/CisM2Z7-rFw",
+    "thumbnail": "https://img.youtube.com/vi/CisM2Z7-rFw/hqdefault.jpg",
+    "eventName": "Breakpoint 2024",
+    "date": "2025-11-15T09:00:00.000Z",
+    "tags": [
+      "Solana",
+      "Events"
+    ],
+    "createdAt": "2026-05-01T11:04:09.931Z"
+  },
+  {
+    "id": "cmomt24el001eocva593tfehc",
+    "title": "Anchor Framework for Beginners",
+    "description": "Master the Anchor framework to build secure Solana programs faster and with better abstractions.",
+    "videoUrl": "https://www.youtube.com/embed/0U_C8J-rF-0",
+    "thumbnail": "https://img.youtube.com/vi/0U_C8J-rF-0/hqdefault.jpg",
+    "eventName": "Solana Workshop",
+    "date": "2025-10-25T13:00:00.000Z",
+    "tags": [
+      "Solana",
+      "Workshop"
+    ],
+    "createdAt": "2026-05-01T11:04:09.933Z"
+  },
+  {
+    "id": "cmomt24en001focvao3yjeir6",
+    "title": "The Rise of Decentralized AI",
+    "description": "Exploring the intersection of blockchain and artificial intelligence in the next generation of Web3.",
+    "videoUrl": "https://www.youtube.com/embed/9vY6L5M6m_A",
+    "thumbnail": "https://img.youtube.com/vi/9vY6L5M6m_A/hqdefault.jpg",
+    "eventName": "Future Tech Summit",
+    "date": "2025-09-10T16:00:00.000Z",
+    "tags": [
+      "Events",
+      "AI",
+      "Web3"
+    ],
+    "createdAt": "2026-05-01T11:04:09.935Z"
+  }
+]

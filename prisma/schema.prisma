@@ -32,8 +32,23 @@ model User {
   projects      Project[]
   applications  ProjectApplication[]
   skills        UserSkill[]
+  activityLogs  ActivityLog[]
+  articles      Article[]
+  contributionScore Int      @default(0) @map("contribution_score")
 
   @@map("users")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  type      String   // "PROJECT_CREATED", "USER_JOINED", "TASK_POSTED"
+  message   String
+  userId    String?  @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@map("activity_logs")
 }
 
 model Event {
@@ -157,4 +172,83 @@ model UserSkill {
 
   @@id([userId, skillId])
   @@map("user_skills")
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  excerpt     String?  @db.Text
+  coverImage  String?  @map("cover_image")
+  authorId    String   @map("author_id")
+  tags        String[]
+  readTime    Int?     @map("read_time")
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  author      User     @relation(fields: [authorId], references: [id])
+
+  @@map("articles")
+}
+
+model Tutorial {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  category    String   // Solana, Bitcoin, etc.
+  difficulty  String   // Beginner, Intermediate, Advanced
+  thumbnail   String?
+  lessons     Lesson[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("tutorials")
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  order       Int
+  tutorialId  String   @map("tutorial_id")
+  tutorial    Tutorial @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
+
+  @@map("lessons")
+}
+
+model ResourceSession {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  videoUrl    String   @map("video_url")
+  thumbnail   String?
+  eventName   String?  @map("event_name")
+  date        DateTime @default(now())
+  tags        String[]
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("resource_sessions")
+}
+
+model HackathonGuide {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  sections    Section[]
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("hackathon_guides")
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  order     Int
+  guideId   String   @map("guide_id")
+  guide     HackathonGuide @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@map("guide_sections")
 }

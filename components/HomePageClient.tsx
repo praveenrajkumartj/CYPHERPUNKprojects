@@ -63,6 +63,14 @@ export default function HomePageClient({ initialEvents }: { initialEvents: any[]
     }
   };
 
+  const formatDate = (dateInput: string | Date) => {
+    const date = new Date(dateInput);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#050510] text-[#f8fbff]">
       <header className="absolute top-0 left-0 right-0 z-50">
@@ -170,7 +178,7 @@ export default function HomePageClient({ initialEvents }: { initialEvents: any[]
                          {event.type}
                        </span>
                        <span className="text-[10px] font-medium text-slate-400 flex items-center gap-1 uppercase">
-                         <Activity className="w-3 h-3" /> {new Date(event.date).toLocaleDateString()}
+                         <Activity className="w-3 h-3" /> {formatDate(event.date)}
                        </span>
                      </div>
                      <h4 className="text-xl font-bold text-white mb-4 line-clamp-1">{event.title}</h4>

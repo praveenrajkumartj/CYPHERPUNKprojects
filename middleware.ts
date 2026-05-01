@@ -7,7 +7,25 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // Public paths
-  if (path === '/' || path === '/login' || path === '/register' || path.startsWith('/api/auth')) {
+  const publicPaths = [
+    '/',
+    '/login',
+    '/register',
+    '/learn',
+    '/blog',
+    '/tutorials',
+    '/sessions',
+    '/guides',
+  ];
+
+  const isPublicPath = publicPaths.includes(path) || 
+                       path.startsWith('/api/auth') || 
+                       path.startsWith('/api/articles') || 
+                       path.startsWith('/api/tutorials') || 
+                       path.startsWith('/api/sessions') || 
+                       path.startsWith('/api/guides');
+
+  if (isPublicPath) {
     return NextResponse.next();
   }
 

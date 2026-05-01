@@ -37,6 +37,15 @@ export async function POST(req: NextRequest) {
       }
     });
 
+    // Log community activity
+    await prisma.activityLog.create({
+      data: {
+        type: 'PROJECT_CREATED',
+        message: `created a new project: ${title}`,
+        userId: session.id as string,
+      }
+    });
+
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
