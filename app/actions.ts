@@ -108,7 +108,25 @@ export async function createEvent(data: any) {
   const userId = await getUserId();
   if (!userId) throw new Error('Unauthorized');
 
-  const { title, description, longDescription, bannerImage, type, locationType, location, date, status, speakers, schedules, capacity } = data;
+  const {
+    title = '',
+    description = '',
+    longDescription = '',
+    bannerImage = '',
+    type = 'hackathon',
+    locationType = 'online',
+    location = '',
+    date = '',
+    status = 'published',
+    speakers = [],
+    schedules = [],
+    capacity = 100,
+  } = data ?? {};
+
+  const parsedDate = new Date(date);
+  if (!date || Number.isNaN(parsedDate.getTime())) {
+    throw new Error('Invalid event date. Please provide a valid date and time.');
+  }
 
   try {
     const event = await prisma.event.create({
@@ -120,23 +138,27 @@ export async function createEvent(data: any) {
         type,
         locationType,
         location,
-        date: new Date(date),
+        date: parsedDate,
         capacity: Number(capacity) || 100,
         organizerId: userId,
         status: status || 'published',
         speakers: {
-          create: speakers.map((s: any) => ({
-            name: s.name,
-            designation: s.designation,
-            image: s.image,
-          }))
+          create: Array.isArray(speakers)
+            ? speakers.map((s: any) => ({
+                name: s.name || '',
+                designation: s.designation || '',
+                image: s.image || '',
+              }))
+            : []
         },
         schedules: {
-          create: schedules.map((s: any) => ({
-            time: s.time,
-            title: s.title,
-            description: s.description,
-          }))
+          create: Array.isArray(schedules)
+            ? schedules.map((s: any) => ({
+                time: s.time || '',
+                title: s.title || '',
+                description: s.description || '',
+              }))
+            : []
         }
       },
     });
@@ -154,7 +176,25 @@ export async function updateEvent(eventId: string, data: any) {
   const userId = await getUserId();
   if (!userId) throw new Error('Unauthorized');
 
-  const { title, description, longDescription, bannerImage, type, locationType, location, date, status, speakers, schedules, capacity } = data;
+  const {
+    title = '',
+    description = '',
+    longDescription = '',
+    bannerImage = '',
+    type = 'hackathon',
+    locationType = 'online',
+    location = '',
+    date = '',
+    status = 'published',
+    speakers = [],
+    schedules = [],
+    capacity = 100,
+  } = data ?? {};
+
+  const parsedDate = new Date(date);
+  if (!date || Number.isNaN(parsedDate.getTime())) {
+    throw new Error('Invalid event date. Please provide a valid date and time.');
+  }
 
   try {
     // Check ownership
@@ -176,22 +216,26 @@ export async function updateEvent(eventId: string, data: any) {
           type,
           locationType,
           location,
-          date: new Date(date),
+          date: parsedDate,
           capacity: Number(capacity) || 100,
           status,
           speakers: {
-            create: speakers.map((s: any) => ({
-              name: s.name,
-              designation: s.designation,
-              image: s.image,
-            }))
+            create: Array.isArray(speakers)
+              ? speakers.map((s: any) => ({
+                  name: s.name || '',
+                  designation: s.designation || '',
+                  image: s.image || '',
+                }))
+              : []
           },
           schedules: {
-            create: schedules.map((s: any) => ({
-              time: s.time,
-              title: s.title,
-              description: s.description,
-            }))
+            create: Array.isArray(schedules)
+              ? schedules.map((s: any) => ({
+                  time: s.time || '',
+                  title: s.title || '',
+                  description: s.description || '',
+                }))
+              : []
           }
         }
       })

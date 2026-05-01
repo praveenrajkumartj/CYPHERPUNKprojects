@@ -14,27 +14,36 @@ enum UserRole {
   ADMIN
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String
-  email         String    @unique
-  password      String
-  role          UserRole  @default(MEMBER)
-  bio           String?
-  location      String?
-  walletAddress String?   @map("wallet_address")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
 
-  events        Event[]   @relation("Organizer")
-  registrations Registration[]
-  tickets       Ticket[]
-  projects      Project[]
-  applications  ProjectApplication[]
-  skills        UserSkill[]
-  activityLogs  ActivityLog[]
-  articles      Article[]
-  contributionScore Int      @default(0) @map("contribution_score")
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  role      UserRole @default(MEMBER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  profile            Profile?
+  events             Event[]              @relation("Organizer")
+  registrations      Registration[]
+  tickets            Ticket[]
+  projects           Project[]
+  applications       ProjectApplication[]
+  bountyApplications BountyApplication[]
+  assignedBounties   Bounty[]
+  skills             UserSkill[]
+
+  sentConnections     Connection[] @relation("SentConnections")
+  receivedConnections Connection[] @relation("ReceivedConnections")
+  activityLogs        ActivityLog[]
+  articles            Article[]
+  contributionScore   Int      @default(0) @map("contribution_score")
 
   @@map("users")
 }
@@ -51,23 +60,57 @@ model ActivityLog {
   @@map("activity_logs")
 }
 
-model Event {
-  id           String    @id @default(cuid())
-  title        String
-  description  String
-  longDescription String? @map("long_description")
-  bannerImage  String?   @map("banner_image")
-  type         String    // hackathon, meetup, workshop
-  locationType String    @map("location_type") // online, offline
-  location     String?   // Join link or Physical address
-  date         DateTime
-  capacity     Int       @default(100)
-  organizerId  String    @map("organizer_id")
-  status       String    @default("published") // draft, published
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+model Profile {
+  id             String   @id @default(cuid())
+  userId         String   @unique @map("user_id")
+  name           String
+  bio            String?
+  location       String?
+  walletAddress  String?  @map("wallet_address")
+  githubUrl      String?  @map("github_url")
+  twitterUrl     String?  @map("twitter_url")
+  linkedinUrl    String?  @map("linkedin_url")
+  lookingForTeam Boolean  @default(false) @map("looking_for_team")
+  hiring         Boolean  @default(false) @map("hiring")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
-  organizer     User      @relation("Organizer", fields: [organizerId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Connection {
+  id         String           @id @default(cuid())
+  senderId   String           @map("sender_id")
+  receiverId String           @map("receiver_id")
+  status     ConnectionStatus @default(PENDING)
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  sender   User @relation("SentConnections", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedConnections", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@map("connections")
+}
+
+model Event {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  longDescription String?  @map("long_description")
+  bannerImage     String?  @map("banner_image")
+  type            String // hackathon, meetup, workshop
+  locationType    String   @map("location_type") // online, offline
+  location        String? // Join link or Physical address
+  date            DateTime
+  capacity        Int      @default(100)
+  organizerId     String   @map("organizer_id")
+  status          String   @default("published") // draft, published
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  organizer     User           @relation("Organizer", fields: [organizerId], references: [id])
   speakers      Speaker[]
   schedules     Schedule[]
   registrations Registration[]
@@ -77,11 +120,11 @@ model Event {
 }
 
 model Speaker {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
   designation String
   image       String?
-  eventId     String @map("event_id")
+  eventId     String  @map("event_id")
 
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
@@ -89,11 +132,11 @@ model Speaker {
 }
 
 model Schedule {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   time        String
   title       String
   description String?
-  eventId     String   @map("event_id")
+  eventId     String  @map("event_id")
 
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
@@ -114,12 +157,12 @@ model Registration {
 }
 
 model Ticket {
-  id         String   @id @default(cuid())
-  type       String   // Basic, Premium, VIP
-  price      Float    @default(0)
-  userId     String   @map("user_id")
-  eventId    String   @map("event_id")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id        String   @id @default(cuid())
+  type      String // Basic, Premium, VIP
+  price     Float    @default(0)
+  userId    String   @map("user_id")
+  eventId   String   @map("event_id")
+  createdAt DateTime @default(now()) @map("created_at")
 
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
@@ -128,37 +171,88 @@ model Ticket {
 }
 
 model Project {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   title       String
   description String
-  status      String    @default("OPEN") // OPEN, CLOSED
-  createdBy   String    @map("created_by")
-  createdAt   DateTime  @default(now()) @map("created_at")
+  teamSize    Int      @default(1) @map("team_size")
+  status      String   @default("idea") // idea, building, launched
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  creator      User      @relation(fields: [createdBy], references: [id])
+  creator      User                 @relation(fields: [createdBy], references: [id])
   applications ProjectApplication[]
+  skills       ProjectSkill[]
+  bounties     Bounty[]
 
   @@map("projects")
 }
 
-model ProjectApplication {
-  id        String @id @default(cuid())
+model ProjectSkill {
   projectId String @map("project_id")
-  userId    String @map("user_id")
-  status    String @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  skillId   String @map("skill_id")
 
-  project   Project @relation(fields: [projectId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill   Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, skillId])
+  @@map("project_skills")
+}
+
+model ProjectApplication {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  userId    String   @map("user_id")
+  status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, userId])
   @@map("project_applications")
 }
 
-model Skill {
-  id    String @id @default(cuid())
-  name  String @unique
+model Bounty {
+  id           String   @id @default(cuid())
+  projectId    String   @map("project_id")
+  title        String
+  description  String
+  rewardAmount Float    @map("reward_amount")
+  rewardType   String   @map("reward_type") // crypto, fiat
+  deadline     DateTime
+  assignedTo   String?  @map("assigned_to")
+  status       String   @default("open") // open, in_progress, completed
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  users UserSkill[]
+  project      Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee     User?               @relation(fields: [assignedTo], references: [id])
+  applications BountyApplication[]
+
+  @@map("bounties")
+}
+
+model BountyApplication {
+  id        String   @id @default(cuid())
+  bountyId  String   @map("bounty_id")
+  userId    String   @map("user_id")
+  status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt DateTime @default(now()) @map("created_at")
+
+  bounty Bounty @relation(fields: [bountyId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([bountyId, userId])
+  @@map("bounty_applications")
+}
+
+model Skill {
+  id   String @id @default(cuid())
+  name String @unique
+
+  users    UserSkill[]
+  projects ProjectSkill[]
 
   @@map("skills")
 }
@@ -167,8 +261,8 @@ model UserSkill {
   userId  String @map("user_id")
   skillId String @map("skill_id")
 
-  user    User   @relation(fields: [userId], references: [id])
-  skill   Skill  @relation(fields: [skillId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+  skill Skill @relation(fields: [skillId], references: [id])
 
   @@id([userId, skillId])
   @@map("user_skills")

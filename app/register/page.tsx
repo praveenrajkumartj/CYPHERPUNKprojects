@@ -161,7 +161,7 @@ export default function RegisterPage() {
                 <Loader2 className="animate-spin" size={20} />
               ) : (
                 <>
-                  Join Cyberphunk
+                  Join Cypherpunk
                   <ArrowRight size={20} />
                 </>
               )}
@@ -181,3 +181,4 @@ export default function RegisterPage() {
     </main>
   );
 }
+

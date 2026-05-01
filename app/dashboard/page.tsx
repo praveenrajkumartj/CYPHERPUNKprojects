@@ -16,18 +16,19 @@ export default async function DashboardPage() {
       registrations: {
         include: {
           event: {
-            include: { organizer: true }
+            include: { organizer: { include: { profile: true } } }
           }
         }
       },
       tickets: {
         include: {
           event: {
-            include: { organizer: true }
+            include: { organizer: { include: { profile: true } } }
           }
         }
       },
       events: true,
+      projects: true,
       applications: {
         include: { project: true }
       }
@@ -122,7 +123,7 @@ export default async function DashboardPage() {
                             <h3 className="font-bold text-xl text-white mb-2 group-hover:text-cyan-400 transition-colors">{event.title}</h3>
                             <div className="flex flex-wrap gap-4 items-center">
                                <div className="flex items-center gap-2 text-xs text-slate-500">
-                                  <Users size={14} /> by {event.organizer.name}
+                                  <Users size={14} /> by {event.organizer?.profile?.name || event.organizer?.username || 'Unknown'}
                                </div>
                                <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest ${event.color}`}>
                                   <event.icon size={14} /> {event.status}
@@ -152,6 +153,50 @@ export default async function DashboardPage() {
                   <Link href="/events" className="inline-block px-8 py-3 rounded-full bg-white text-[#050510] font-bold text-xs tracking-widest hover:scale-105 transition-transform">EXPLORE EVENTS</Link>
                 </div>
               )}
+            </section>
+
+            {/* My Projects */}
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Project Sector</h2>
+                <Link href="/projects" className="text-xs font-bold uppercase tracking-widest text-pink-400 hover:text-pink-300">View Marketplace</Link>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                 {/* Applications */}
+                 <div className="p-8 rounded-[2.5rem] bg-[#0c1222]/50 border border-white/5 space-y-6">
+                    <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest">Sent Requests</h3>
+                    {user?.applications.length ? (
+                      <div className="space-y-4">
+                        {user.applications.map((app: any) => (
+                          <Link key={app.id} href={`/projects/${app.project.id}`} className="block p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-pink-500/30 transition-all">
+                             <p className="font-bold text-white text-sm truncate">{app.project.title}</p>
+                             <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Status: {app.status}</p>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-600 italic">No outgoing requests.</p>
+                    )}
+                 </div>
+
+                 {/* My Own Projects */}
+                 <div className="p-8 rounded-[2.5rem] bg-[#0c1222]/50 border border-white/5 space-y-6">
+                    <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest">My Deployments</h3>
+                    {user?.projects.length ? (
+                      <div className="space-y-4">
+                        <Link href="/projects/create" className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 text-[10px] font-black uppercase tracking-widest hover:bg-cyan-400/20 transition-all">
+                           <Plus size={14} /> New Deployment
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <p className="text-xs text-slate-600 italic">No projects deployed yet.</p>
+                        <Link href="/projects/create" className="block text-center py-3 rounded-xl bg-cyan-400/10 border border-cyan-400/20 text-cyan-400 text-[10px] font-black uppercase tracking-widest">Start Building</Link>
+                      </div>
+                    )}
+                 </div>
+              </div>
             </section>
           </div>
 

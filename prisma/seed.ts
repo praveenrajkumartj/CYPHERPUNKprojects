@@ -28,8 +28,8 @@ async function main() {
   const hashedPassword = await bcrypt.hash('password123', 10);
   const organizer = await prisma.user.create({
     data: {
-      name: 'Cyberphunk Admin',
-      email: 'admin@cyberphunk.io',
+      name: 'Cypherpunk Admin',
+      email: 'admin@cypherpunk.io',
       password: hashedPassword,
       role: 'ADMIN',
       bio: 'Leading the decentralized revolution.',
@@ -39,12 +39,12 @@ async function main() {
   // Create Events
   const events = [
     {
-      title: 'Cyberphunk Hackathon 2026',
+      title: 'Cypherpunk Hackathon 2026',
       description: 'The ultimate privacy hackathon.',
       longDescription: 'Join hundreds of developers from around the world for a 48-hour sprint building privacy-preserving protocols and zero-knowledge tools. Prize pool of $80k in crypto.',
       type: 'hackathon',
       locationType: 'online',
-      location: 'https://discord.gg/cyberphunk',
+      location: 'https://discord.gg/cypherpunk',
       date: new Date('2026-05-17T09:00:00Z'),
       bannerImage: '/images/blog_featured.png',
       organizerId: organizer.id,
@@ -90,7 +90,7 @@ async function main() {
       longDescription: 'An intensive 8-week course covering the mathematics and implementation of SNARKs, STARKs, and other ZK protocols.',
       type: 'workshop',
       locationType: 'online',
-      location: 'Zoom / Cyberphunk Portal',
+      location: 'Zoom / Cypherpunk Portal',
       date: new Date('2026-08-15T15:00:00Z'),
       bannerImage: '/images/zkp_phone.png',
       organizerId: organizer.id,

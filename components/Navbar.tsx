@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { LayoutGrid, Calendar, Users, Briefcase, User, LogOut, Shield, Rocket, BookOpen } from 'lucide-react';
+import { LayoutGrid, Calendar, Users, Briefcase, User, LogOut, Shield, Rocket, Target, BookOpen } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {
@@ -34,19 +34,20 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Events', href: '/events', icon: Calendar },
-    { name: 'Projects', href: '/marketplace', icon: Briefcase },
+    { name: 'Projects', href: '/projects', icon: Briefcase },
     { name: 'Learn', href: '/learn', icon: BookOpen },
+    { name: 'Bounties', href: '/bounties', icon: Target },
   ];
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'py-4 glass border-b' : 'py-6 bg-transparent'}`}>
       <div className="container mx-auto px-6 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
-            <LayoutGrid className="text-white" size={24} />
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-9 h-9 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center group-hover:bg-white/10 transition-colors duration-300">
+            <LayoutGrid className="text-slate-400 group-hover:text-white" size={18} />
           </div>
-          <span className="text-2xl font-bold tracking-tighter bg-gradient-to-r from-white to-primary bg-clip-text text-transparent">
-            CYBERPHUNK
+          <span className="text-lg font-medium tracking-[0.4em] text-slate-200 font-mono">
+            CYPHERPUNK
           </span>
         </Link>
 

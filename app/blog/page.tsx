@@ -83,7 +83,7 @@ export default function BlogPage() {
 
       <header className="relative z-50">
         <nav className="container mx-auto flex items-center justify-between px-6 py-6 text-sm text-slate-300">
-          <Link href="/" className="font-semibold uppercase tracking-[0.35em] text-cyan-400">CYBERPHUNK</Link>
+          <Link href="/" className="font-mono font-medium uppercase tracking-[0.4em] text-slate-200">CYPHERPUNK</Link>
           <div className="hidden items-center gap-8 lg:flex">
             <Link href="/" className="transition hover:text-white uppercase text-xs tracking-widest">Home</Link>
             <Link href="/about" className="transition hover:text-white uppercase text-xs tracking-widest">About</Link>
@@ -327,8 +327,8 @@ export default function BlogPage() {
       <footer className="relative z-20 bg-[#050510] px-6 py-20 text-sm border-t border-white/5">
         <div className="container mx-auto grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.5fr]">
           <div className="space-y-6">
-            <h5 className="font-bold uppercase tracking-[0.3em] text-cyan-400 text-lg">CYBERPHUNK</h5>
-            <p className="text-slate-500 leading-relaxed max-w-xs">The cyberphunk community platform for Web3 builders, privacy advocates, and digital sovereignty warriors.</p>
+            <h5 className="font-mono font-medium uppercase tracking-[0.3em] text-slate-200 text-lg">CYPHERPUNK</h5>
+            <p className="text-slate-500 leading-relaxed max-w-xs">The cypherpunk community platform for Web3 builders, privacy advocates, and digital sovereignty warriors.</p>
             <div className="flex gap-4 pt-4">
               {[Share2, Bookmark, User, Search].map((Icon, i) => (
                  <div key={i} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-cyan-500/20 hover:text-cyan-400 cursor-pointer transition-all">
@@ -375,7 +375,7 @@ export default function BlogPage() {
         </div>
         
         <div className="container mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-[10px] text-slate-600 gap-6 uppercase tracking-widest">
-           <p>© 2026 Cyberphunk. All rights reserved.</p>
+           <p>© 2026 Cypherpunk. All rights reserved.</p>
            <div className="flex gap-8">
               <Link href="#" className="hover:text-cyan-400">Privacy</Link>
               <Link href="#" className="hover:text-cyan-400">Terms</Link>
@@ -386,3 +386,4 @@ export default function BlogPage() {
     </main>
   );
 }
+

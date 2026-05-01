@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'CyberPhunk — Where Web3 builders connect, collaborate, and create.',
+  title: 'CypherPunk — Where Web3 builders connect, collaborate, and create.',
   description: 'A futuristic Web3 landing page for builders, hackers, and decentralized teams.',
 };
 

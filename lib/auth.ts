@@ -2,7 +2,7 @@ import { jwtVerify, SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'cyberphunk-secret-key-12345');
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'cypherpunk-secret-key-12345');
 
 export async function signJWT(payload: any) {
   return await new SignJWT(payload)
@@ -44,3 +44,4 @@ export async function clearSession() {
   const cookieStore = await cookies();
   cookieStore.delete('token');
 }
+
