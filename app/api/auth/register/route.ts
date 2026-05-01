@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
+      select: { id: true, email: true }
     });
 
     if (existingUser) {
@@ -24,18 +25,34 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate a unique default username from email
+    const baseUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    let username = baseUsername;
+    let count = 1;
+    while (await prisma.user.findFirst({ where: { username }, select: { id: true } })) {
+      username = `${baseUsername}${count}`;
+      count++;
+    }
+
     const user = await prisma.user.create({
       data: {
-        name,
+        username,
         email,
         password: hashedPassword,
         role: userRole,
+        profile: {
+          create: {
+            name: name,
+            bio: "New builder on the protocol.",
+          }
+        }
       },
     });
 
     const sessionData = {
       id: user.id,
-      name: user.name,
+      name: name,
+      username: user.username,
       email: user.email,
       role: user.role,
     };

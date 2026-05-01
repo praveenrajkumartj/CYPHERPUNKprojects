@@ -51,7 +51,7 @@ export default async function NewEventPage() {
           <div>
             <p className="text-xs uppercase tracking-[0.45em] text-cyan-300/80">Organizer studio</p>
             <h1 className="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">Create a new event</h1>
-            <p className="mt-3 max-w-2xl text-slate-400">Publish your next hackathon, workshop, or meetup to the CyberPhunk community.</p>
+            <p className="mt-3 max-w-2xl text-slate-400">Publish your next hackathon, workshop, or meetup to the CypherPunk community.</p>
           </div>
           <Link
             href="/events"
@@ -125,7 +125,7 @@ export default async function NewEventPage() {
                   <Sparkles size={18} className="text-cyan-300" />
                   <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Organizer note</p>
                 </div>
-                <p className="mt-4 text-sm leading-7 text-slate-300">Only organizers and admins can publish events. Every event is added directly to the CyberPhunk experience.</p>
+                <p className="mt-4 text-sm leading-7 text-slate-300">Only organizers and admins can publish events. Every event is added directly to the CypherPunk experience.</p>
               </div>
 
               <button
@@ -141,3 +141,4 @@ export default async function NewEventPage() {
     </main>
   );
 }
+

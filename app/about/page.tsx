@@ -15,7 +15,7 @@ export default function AboutPage() {
     { year: '1993', title: 'Eric Hughes publishes "A Cypherpunk\'s Manifesto," declaring privacy is necessary for an open society.', color: 'pink' },
     { year: '2008', title: 'Satoshi Nakamoto publishes the Bitcoin whitepaper, proving decentralized digital currency is possible.', color: 'cyan' },
     { year: '2014', title: 'Ethereum is proposed by Vitalik Buterin, bringing smart contracts and decentralized apps to life.', color: 'pink' },
-    { year: '2026', title: 'Cyberphunk is established, uniting a new generation of builders to defend digital sovereignty.', color: 'cyan' },
+    { year: '2026', title: 'Cypherpunk is established, uniting a new generation of builders to defend digital sovereignty.', color: 'cyan' },
   ];
 
   const builders = [
@@ -37,7 +37,7 @@ export default function AboutPage() {
 
       <header className="relative z-50">
         <nav className="container mx-auto flex items-center justify-between px-6 py-6 text-sm text-slate-300">
-          <Link href="/" className="font-semibold uppercase tracking-[0.35em] text-cyan-400">CYBERPHUNK</Link>
+          <Link href="/" className="font-mono font-medium uppercase tracking-[0.4em] text-slate-200">CYPHERPUNK</Link>
           <div className="hidden items-center gap-8 lg:flex">
             <Link href="/" className="transition hover:text-white uppercase text-xs tracking-widest">Home</Link>
             <Link href="/about" className="transition text-cyan-400 uppercase text-xs tracking-widest relative">
@@ -73,7 +73,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-3xl mx-auto"
           >
-            Cyberphunk is a community of makers who envision a future that prioritizes digital sovereignty, privacy, and true decentralization. We believe that code is free speech, and we write the software to prove it.
+            Cypherpunk is a community of makers who envision a future that prioritizes digital sovereignty, privacy, and true decentralization. We believe that code is free speech, and we write the software to prove it.
           </motion.p>
         </div>
       </section>
@@ -249,7 +249,7 @@ export default function AboutPage() {
                 <span className="w-4 h-[1px] bg-cyan-400"></span> OUR CORE <span className="w-4 h-[1px] bg-cyan-400"></span>
              </p>
              <h2 className="text-4xl md:text-5xl font-bold mb-6">Meet the <span className="text-transparent bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text">Builders</span></h2>
-             <p className="text-slate-400 max-w-2xl mx-auto text-lg">The original contributors to the Cyberphunk community.<br/>Anonymous by choice.</p>
+             <p className="text-slate-400 max-w-2xl mx-auto text-lg">The original contributors to the Cypherpunk community.<br/>Anonymous by choice.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -301,8 +301,8 @@ export default function AboutPage() {
       <footer className="relative z-20 border-t border-white/10 bg-[#050510] px-6 py-16 text-sm">
         <div className="container mx-auto grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.5fr]">
           <div className="space-y-4">
-            <h5 className="font-bold uppercase tracking-[0.2em] text-cyan-400">CYBERPHUNK</h5>
-            <p className="text-slate-500 leading-relaxed max-w-xs">The cyberphunk community platform for Web3 builders, privacy advocates, and digital sovereignty warriors.</p>
+            <h5 className="font-mono font-medium uppercase tracking-[0.3em] text-slate-200">CYPHERPUNK</h5>
+            <p className="text-slate-500 leading-relaxed max-w-xs">The cypherpunk community platform for Web3 builders, privacy advocates, and digital sovereignty warriors.</p>
             <div className="flex gap-4 pt-4">
               <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-cyan-500/20 hover:text-cyan-400 cursor-pointer transition">X</div>
               <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-pink-500/20 hover:text-pink-400 cursor-pointer transition">D</div>
@@ -346,7 +346,7 @@ export default function AboutPage() {
         </div>
         
         <div className="container mx-auto mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-xs text-slate-600 gap-4">
-           <p>© 2026 Cyberphunk. Built by cyberphunks for the free world.</p>
+           <p>© 2026 Cypherpunk. Built by cypherpunks for the free world.</p>
            <div className="flex gap-6">
               <Link href="#" className="hover:text-slate-400">Privacy Policy</Link>
               <Link href="#" className="hover:text-slate-400">Terms</Link>
@@ -357,3 +357,4 @@ export default function AboutPage() {
     </main>
   );
 }
+

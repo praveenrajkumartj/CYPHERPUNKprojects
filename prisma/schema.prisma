@@ -14,26 +14,67 @@ enum UserRole {
   ADMIN
 }
 
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
   id            String    @id @default(cuid())
-  name          String
+  username      String    @unique
   email         String    @unique
   password      String
   role          UserRole  @default(MEMBER)
-  bio           String?
-  location      String?
-  walletAddress String?   @map("wallet_address")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
+  profile       Profile?
   events        Event[]   @relation("Organizer")
   registrations Registration[]
   tickets       Ticket[]
   projects      Project[]
   applications  ProjectApplication[]
   skills        UserSkill[]
+  
+  sentConnections     Connection[] @relation("SentConnections")
+  receivedConnections Connection[] @relation("ReceivedConnections")
 
   @@map("users")
+}
+
+model Profile {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  name            String
+  bio             String?
+  location        String?
+  walletAddress   String?  @map("wallet_address")
+  githubUrl       String?  @map("github_url")
+  twitterUrl      String?  @map("twitter_url")
+  linkedinUrl     String?  @map("linkedin_url")
+  lookingForTeam  Boolean  @default(false) @map("looking_for_team")
+  hiring          Boolean  @default(false) @map("hiring")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Connection {
+  id         String           @id @default(cuid())
+  senderId   String           @map("sender_id")
+  receiverId String           @map("receiver_id")
+  status     ConnectionStatus @default(PENDING)
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  sender   User @relation("SentConnections", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedConnections", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@map("connections")
 }
 
 model Event {

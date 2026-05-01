@@ -359,7 +359,7 @@ export default function HeroSection() {
               <div className="space-y-6">
                 <div>
                    <p className="text-[10px] font-black text-cyan-400 uppercase tracking-[0.3em] mb-2">Next Hackathon</p>
-                   <h3 className="text-3xl font-black text-white leading-none">CYBERPHUNK<br/>2026_</h3>
+                   <h3 className="text-2xl font-medium text-white leading-none font-mono tracking-[0.2em]">CYPHERPUNK<br/>2026_</h3>
                 </div>
 
                 <div className="flex items-center gap-2">

@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     where: { id: params.id },
   });
   return {
-    title: `${project?.title || 'Project'} | Cyberphunk`,
+    title: `${project?.title || 'Project'} | Cypherpunk`,
   };
 }
 
@@ -105,7 +105,7 @@ export default async function ProjectDetailPage({ params }: Props) {
                 </div>
               </div>
               <p className="text-sm text-slate-400 line-clamp-3">
-                {project.creator.bio || 'Verified Cyberphunk builder and innovator.'}
+                {project.creator.bio || 'Verified Cypherpunk builder and innovator.'}
               </p>
             </div>
           </div>

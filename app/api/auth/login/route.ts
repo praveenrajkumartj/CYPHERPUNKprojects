@@ -13,6 +13,14 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        username: true,
+        role: true,
+        profile: true
+      }
     });
 
     if (!user) {
@@ -27,7 +35,8 @@ export async function POST(req: NextRequest) {
 
     const sessionData = {
       id: user.id,
-      name: user.name,
+      name: user.profile?.name || user.username,
+      username: user.username,
       email: user.email,
       role: user.role,
     };

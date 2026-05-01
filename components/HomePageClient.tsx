@@ -67,7 +67,7 @@ export default function HomePageClient({ initialEvents }: { initialEvents: any[]
     <main className="relative min-h-screen overflow-hidden bg-[#050510] text-[#f8fbff]">
       <header className="absolute top-0 left-0 right-0 z-50">
         <nav className="container mx-auto flex items-center justify-between px-6 py-6 text-sm text-slate-300">
-          <Link href="/" className="font-semibold uppercase tracking-[0.35em] text-[#00ffff]">CYBERPHUNK</Link>
+          <Link href="/" className="font-mono font-medium uppercase tracking-[0.4em] text-slate-200">CYPHERPUNK</Link>
           <div className="hidden items-center gap-8 lg:flex">
             <Link href="/" className="transition hover:text-white uppercase text-xs tracking-widest text-[#00ffff]">Home</Link>
             <Link href="/about" className="transition hover:text-white uppercase text-xs tracking-widest">About</Link>
@@ -139,7 +139,7 @@ export default function HomePageClient({ initialEvents }: { initialEvents: any[]
                 <span className="ml-2">manifesto.js</span>
               </div>
               <div className="rounded-xl border border-white/5 bg-[#050510] p-6 text-sm leading-8 text-slate-300 font-mono overflow-x-auto">
-                <p className="text-purple-400">const <span className="text-cyan-300">cyberphunk</span> = {'{'}</p>
+                <p className="text-purple-400">const <span className="text-cyan-300">cypherpunk</span> = {'{'}</p>
                 <p className="pl-6"><span className="text-slate-400">mission:</span> <span className="text-green-300">'privacy first'</span>,</p>
                 <p className="pl-6"><span className="text-slate-400">ethos:</span> <span className="text-green-300">'anonymous collaboration'</span>,</p>
                 <p className="pl-6"><span className="text-slate-400">velocity:</span> <span className="text-green-300">'unstoppable'</span>,</p>
@@ -255,8 +255,8 @@ export default function HomePageClient({ initialEvents }: { initialEvents: any[]
       <footer className="relative z-20 border-t border-white/10 bg-[#050510] px-6 py-16 text-sm">
         <div className="container mx-auto grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.5fr]">
           <div className="space-y-4">
-            <h5 className="font-bold uppercase tracking-[0.2em] text-cyan-400">CYBERPHUNK</h5>
-            <p className="text-slate-500 leading-relaxed max-w-xs">The cyberphunk community platform for Web3 builders, privacy advocates, and digital sovereignty warriors.</p>
+            <h5 className="font-mono font-medium uppercase tracking-[0.3em] text-slate-200">CYPHERPUNK</h5>
+            <p className="text-slate-500 leading-relaxed max-w-xs">The cypherpunk community platform for Web3 builders, privacy advocates, and digital sovereignty warriors.</p>
             <div className="flex gap-4 pt-4">
               <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-cyan-500/20 hover:text-cyan-400 cursor-pointer transition">X</div>
               <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-pink-500/20 hover:text-pink-400 cursor-pointer transition">D</div>
@@ -300,7 +300,7 @@ export default function HomePageClient({ initialEvents }: { initialEvents: any[]
         </div>
         
         <div className="container mx-auto mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-xs text-slate-600 gap-4">
-           <p>© 2026 Cyberphunk. Built by cyberphunks for the free world.</p>
+           <p>© 2026 Cypherpunk. Built by cypherpunks for the free world.</p>
            <div className="flex gap-6">
               <Link href="#" className="hover:text-slate-400">Privacy Policy</Link>
               <Link href="#" className="hover:text-slate-400">Terms</Link>
@@ -311,3 +311,4 @@ export default function HomePageClient({ initialEvents }: { initialEvents: any[]
     </main>
   );
 }
+

@@ -9,7 +9,12 @@ export async function GET() {
 
     const user = await prisma.user.findUnique({
       where: { id: session.id as string },
-      include: {
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        profile: true,
         skills: {
           include: { skill: true }
         }
@@ -29,13 +34,33 @@ export async function PUT(req: NextRequest) {
 
     const { name, bio, location, walletAddress, skills } = await req.json();
 
-    const user = await prisma.user.update({
-      where: { id: session.id as string },
-      data: {
+    // 1. Update Profile (create if not exists)
+    await prisma.profile.upsert({
+      where: { userId: session.id as string },
+      create: {
+        userId: session.id as string,
         name,
         bio,
         location,
         walletAddress,
+      },
+      update: {
+        name,
+        bio,
+        location,
+        walletAddress,
+      },
+    });
+
+    // 2. Fetch updated user with profile
+    const user = await prisma.user.findUnique({
+      where: { id: session.id as string },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        profile: true
       }
     });
 

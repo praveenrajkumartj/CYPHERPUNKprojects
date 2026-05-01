@@ -24,11 +24,19 @@ export default async function AttendeesPage({
     where: { id },
     include: {
       registrations: {
-        include: { user: true },
+        include: { 
+          user: {
+            include: { profile: true }
+          }
+        },
         orderBy: { createdAt: 'desc' }
       },
       tickets: {
-        include: { user: true },
+        include: { 
+          user: {
+            include: { profile: true }
+          }
+        },
         orderBy: { createdAt: 'desc' }
       }
     }
@@ -131,9 +139,9 @@ export default async function AttendeesPage({
                     <td className="px-8 py-6">
                        <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center font-bold text-slate-300">
-                             {attendee.user.name.charAt(0)}
+                             {(attendee.user.profile?.name || attendee.user.username).charAt(0)}
                           </div>
-                          <span className="font-bold text-white">{attendee.user.name}</span>
+                          <span className="font-bold text-white">{attendee.user.profile?.name || attendee.user.username}</span>
                        </div>
                     </td>
                     <td className="px-8 py-6">

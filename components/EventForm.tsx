@@ -106,7 +106,7 @@ export default function EventForm({ initialData, eventId }: EventFormProps) {
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">Event Title</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Cyberphunk Hackathon 2026"
+                  placeholder="e.g. Cypherpunk Hackathon 2026"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white text-lg focus:outline-none focus:border-cyan-500/50 transition-all"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -393,3 +393,4 @@ export default function EventForm({ initialData, eventId }: EventFormProps) {
     </div>
   );
 }
+

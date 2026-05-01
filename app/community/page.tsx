@@ -61,7 +61,7 @@ export default function CommunityPage() {
 
       <header className="relative z-50">
         <nav className="container mx-auto flex items-center justify-between px-6 py-6 text-sm text-slate-300">
-          <Link href="/" className="font-semibold uppercase tracking-[0.35em] text-cyan-400">CYBERPHUNK</Link>
+          <Link href="/" className="font-mono font-medium uppercase tracking-[0.4em] text-slate-200">CYPHERPUNK</Link>
           <div className="hidden items-center gap-8 lg:flex">
             <Link href="/" className="transition hover:text-white uppercase text-xs tracking-widest">Home</Link>
             <Link href="/about" className="transition hover:text-white uppercase text-xs tracking-widest">About</Link>
@@ -172,7 +172,7 @@ export default function CommunityPage() {
                <p className="text-[10px] font-bold tracking-[0.3em] uppercase text-cyan-400 mb-6">ON-CHAIN VERIFICATION</p>
                <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">Connect Your <span className="text-transparent bg-gradient-to-r from-cyan-400 to-pink-500 bg-clip-text">Web3 Identity</span></h2>
                <p className="text-lg text-slate-400 mb-10 leading-relaxed">
-                  Authentication in the Cyberphunk community is handled via decentralized protocols. Link your wallet to verify your on-chain history and unlock tier-based rewards.
+                  Authentication in the Cypherpunk community is handled via decentralized protocols. Link your wallet to verify your on-chain history and unlock tier-based rewards.
                </p>
                
                <ul className="space-y-6">
@@ -221,11 +221,11 @@ export default function CommunityPage() {
            
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
-                { name: 'X / Twitter', handle: '@cyberphunk', icon: MessageCircle, color: 'text-white' },
-                { name: 'Discord', handle: 'Cyberphunk Server', icon: MessageSquare, color: 'text-[#5865F2]' },
-                { name: 'Telegram', handle: 't.me/cyberphunk', icon: Send, color: 'text-[#229ED9]' },
-                { name: 'GitHub', handle: 'cyberphunk-dev', icon: Code, color: 'text-white' },
-                { name: 'YouTube', handle: 'Cyberphunk Labs', icon: Video, color: 'text-[#FF0000]' }
+                { name: 'X / Twitter', handle: '@cypherpunk', icon: MessageCircle, color: 'text-white' },
+                { name: 'Discord', handle: 'Cypherpunk Server', icon: MessageSquare, color: 'text-[#5865F2]' },
+                { name: 'Telegram', handle: 't.me/cypherpunk', icon: Send, color: 'text-[#229ED9]' },
+                { name: 'GitHub', handle: 'cypherpunk-dev', icon: Code, color: 'text-white' },
+                { name: 'YouTube', handle: 'Cypherpunk Labs', icon: Video, color: 'text-[#FF0000]' }
               ].map((social, i) => (
                  <div key={i} className="group p-6 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
                     <div className="flex items-center gap-4">
@@ -261,7 +261,7 @@ export default function CommunityPage() {
                      </div>
                      <div>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Email Us</p>
-                        <p className="text-lg font-bold text-white">hello@cyberphunk.io</p>
+                        <p className="text-lg font-bold text-white">hello@cypherpunk.io</p>
                      </div>
                   </div>
                   
@@ -345,8 +345,8 @@ export default function CommunityPage() {
       <footer className="relative z-20 bg-[#050510] px-6 py-20 text-sm border-t border-white/5">
         <div className="container mx-auto grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.5fr]">
           <div className="space-y-6">
-            <h5 className="font-bold uppercase tracking-[0.3em] text-cyan-400 text-lg">CYBERPHUNK</h5>
-            <p className="text-slate-500 leading-relaxed max-w-xs">The cyberphunk community platform for Web3 builders, privacy advocates, and digital sovereignty warriors.</p>
+            <h5 className="font-mono font-medium uppercase tracking-[0.3em] text-slate-200 text-lg">CYPHERPUNK</h5>
+            <p className="text-slate-500 leading-relaxed max-w-xs">The cypherpunk community platform for Web3 builders, privacy advocates, and digital sovereignty warriors.</p>
             <div className="flex gap-4 pt-4">
               {[MessageCircle, Code, Shield, Globe].map((Icon, i) => (
                  <div key={i} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:bg-cyan-500/20 hover:text-cyan-400 cursor-pointer transition-all">
@@ -393,7 +393,7 @@ export default function CommunityPage() {
         </div>
         
         <div className="container mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-[10px] text-slate-600 gap-6 uppercase tracking-widest">
-           <p>© 2026 Cyberphunk. All rights reserved.</p>
+           <p>© 2026 Cypherpunk. All rights reserved.</p>
            <div className="flex gap-8">
               <Link href="#" className="hover:text-cyan-400">Privacy</Link>
               <Link href="#" className="hover:text-cyan-400">Terms</Link>
@@ -404,3 +404,4 @@ export default function CommunityPage() {
     </main>
   );
 }
+

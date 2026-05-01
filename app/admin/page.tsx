@@ -13,7 +13,8 @@ export default async function AdminDashboard() {
   const projectCount = await prisma.project.count();
   const recentUsers = await prisma.user.findMany({
     take: 5,
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    include: { profile: true }
   });
 
   return (
@@ -27,7 +28,7 @@ export default async function AdminDashboard() {
           </div>
           <div>
             <h1 className="text-4xl font-bold tracking-tight">System Administration</h1>
-            <p className="text-slate-400">Oversee the Cyberphunk ecosystem and manage users.</p>
+            <p className="text-slate-400">Oversee the Cypherpunk ecosystem and manage users.</p>
           </div>
         </div>
 
@@ -71,10 +72,10 @@ export default async function AdminDashboard() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
-                            {user.name.charAt(0)}
+                            {(user.profile?.name || user.username).charAt(0)}
                           </div>
                           <div>
-                            <p className="text-sm font-bold">{user.name}</p>
+                            <p className="text-sm font-bold">{user.profile?.name || user.username}</p>
                             <p className="text-xs text-slate-500">{user.email}</p>
                           </div>
                         </div>
@@ -121,3 +122,4 @@ export default async function AdminDashboard() {
     </main>
   );
 }
+
