@@ -11,6 +11,12 @@ interface EventFormProps {
   eventId?: string;
 }
 
+const getDefaultDateTimeLocal = () => {
+  const date = new Date();
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60000).toISOString().slice(0, 16);
+};
+
 export default function EventForm({ initialData, eventId }: EventFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -22,7 +28,7 @@ export default function EventForm({ initialData, eventId }: EventFormProps) {
     type: initialData?.type || 'hackathon',
     locationType: initialData?.locationType || 'online',
     location: initialData?.location || '',
-    date: initialData?.date ? new Date(initialData.date).toISOString().slice(0, 16) : '',
+    date: initialData?.date ? new Date(initialData.date).toISOString().slice(0, 16) : getDefaultDateTimeLocal(),
     status: initialData?.status || 'published',
     capacity: initialData?.capacity || 100,
   });
@@ -33,11 +39,11 @@ export default function EventForm({ initialData, eventId }: EventFormProps) {
 
   const handleFileUpload = async (file: File, type: 'banner' | 'speaker', index?: number) => {
     setUploading(type === 'banner' ? 'banner' : `speaker-${index}`);
-    const formData = new FormData();
-    formData.append('file', file);
+    const uploadData = new FormData();
+    uploadData.append('file', file);
     
     try {
-      const res = await uploadImage(formData);
+      const res = await uploadImage(uploadData);
       if (res.success && res.url) {
         if (type === 'banner') {
           setFormData({ ...formData, bannerImage: res.url });
@@ -72,6 +78,17 @@ export default function EventForm({ initialData, eventId }: EventFormProps) {
   };
 
   const handleSubmit = async (status: string) => {
+    if (!formData.date) {
+      alert('Please select a valid date and time for the event.');
+      return;
+    }
+
+    const parsedDate = new Date(formData.date);
+    if (Number.isNaN(parsedDate.getTime())) {
+      alert('Please select a valid date and time for the event.');
+      return;
+    }
+
     setLoading(true);
     const finalData = { ...formData, status, speakers, schedules };
     

@@ -208,7 +208,7 @@ const FloatingShapes = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => {
   );
 };
 
-export default function HeroSection() {
+export default function HeroSection({ user }: { user: any }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -313,9 +313,12 @@ export default function HeroSection() {
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center gap-4"
           >
-            <Link href="/register" className="group relative w-full sm:w-auto px-8 py-4 bg-white rounded-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] overflow-hidden flex items-center justify-center">
+            <Link 
+              href={user ? (user.role === 'ORGANIZER' || user.role === 'ADMIN' ? '/organizer' : '/dashboard') : '/register'} 
+              className="group relative w-full sm:w-auto px-8 py-4 bg-white rounded-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] overflow-hidden flex items-center justify-center"
+            >
               <span className="relative z-10 flex items-center justify-center gap-2 text-[#03030a]">
-                Start Building <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                {user ? 'Go to Dashboard' : 'Start Building'} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-100 to-purple-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>

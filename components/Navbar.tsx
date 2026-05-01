@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { LayoutGrid, Calendar, Users, Briefcase, User, LogOut, Shield, Rocket } from 'lucide-react';
+import { LayoutGrid, Calendar, Users, Briefcase, User, LogOut, Shield, Rocket, Target } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Navbar() {
@@ -34,7 +34,8 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Events', href: '/events', icon: Calendar },
-    { name: 'Projects', href: '/marketplace', icon: Briefcase },
+    { name: 'Projects', href: '/projects', icon: Briefcase },
+    { name: 'Bounties', href: '/bounties', icon: Target },
   ];
 
   return (

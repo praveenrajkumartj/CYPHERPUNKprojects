@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, Activity, Bitcoin, Lock, Shield, Layers, Box } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
+import { useRouter } from 'next/navigation';
 
 const statsConfig = [
   { label: 'active nodes', value: 5200, suffix: '+' },
@@ -14,7 +15,8 @@ const statsConfig = [
   { label: 'global events', value: 240, suffix: '+' },
 ];
 
-export default function HomePageClient({ initialEvents }: { initialEvents: any[] }) {
+export default function HomePageClient({ initialEvents, user }: { initialEvents: any[], user: any }) {
+  const router = useRouter();
   const [statsActive, setStatsActive] = useState(false);
   const [counts, setCounts] = useState<number[]>(statsConfig.map(() => 0));
   const statsRef = useRef<HTMLElement | null>(null);
@@ -63,6 +65,12 @@ export default function HomePageClient({ initialEvents }: { initialEvents: any[]
     }
   };
 
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+    router.refresh();
+  };
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#050510] text-[#f8fbff]">
       <header className="absolute top-0 left-0 right-0 z-50">
@@ -75,12 +83,29 @@ export default function HomePageClient({ initialEvents }: { initialEvents: any[]
             <Link href="/projects" className="transition hover:text-white uppercase text-xs tracking-widest">Projects</Link>
             <Link href="/blog" className="transition hover:text-white uppercase text-xs tracking-widest">Blog</Link>
             <Link href="/community" className="transition hover:text-white uppercase text-xs tracking-widest">Community</Link>
+            {user && (
+              <Link 
+                href={user.role === 'ORGANIZER' || user.role === 'ADMIN' ? '/organizer' : '/dashboard'} 
+                className="transition text-cyan-400 hover:text-cyan-300 uppercase text-xs tracking-widest font-bold"
+              >
+                Dashboard
+              </Link>
+            )}
           </div>
-          <Link href="/register" className="rounded-full border border-pink-500 bg-transparent px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-pink-500 transition hover:bg-pink-500/10">Sign In</Link>
+          {user ? (
+            <button 
+              onClick={handleLogout}
+              className="rounded-full border border-pink-500 bg-transparent px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-pink-500 transition hover:bg-pink-500/10"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link href="/login" className="rounded-full border border-pink-500 bg-transparent px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-pink-500 transition hover:bg-pink-500/10">Sign In</Link>
+          )}
         </nav>
       </header>
 
-      <HeroSection />
+      <HeroSection user={user} />
 
       <section className="relative z-20 border-t border-b border-white/5 bg-[#080b19] px-6 py-12" ref={statsRef}>
         <div className="container mx-auto grid grid-cols-2 gap-8 md:grid-cols-4 text-center divide-x divide-white/5">

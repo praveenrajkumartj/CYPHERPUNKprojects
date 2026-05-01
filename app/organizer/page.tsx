@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
-import { Calendar, Users, Zap, TrendingUp, ArrowRight, Plus } from 'lucide-react';
+import { Calendar, Users, Zap, TrendingUp, ArrowRight, Plus, Target } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import MotionDiv from '@/components/MotionDiv';
@@ -34,12 +34,17 @@ export default async function OrganizerOverview() {
 
   const totalAttendees = eventsWithCounts.reduce((acc, curr) => acc + curr._count.registrations + curr._count.tickets, 0);
 
+  const totalRsvpCount = await prisma.registration.count({
+    where: { event: { organizerId: session.id as string } }
+  });
+
   const totalRsvpTickets = await prisma.ticket.count({
     where: { 
       event: { organizerId: session.id as string },
       type: 'Basic'
     }
   });
+
   const totalPaidTickets = await prisma.ticket.count({
     where: { 
       event: { organizerId: session.id as string },
@@ -47,11 +52,15 @@ export default async function OrganizerOverview() {
     }
   });
 
+  const totalBounties = await prisma.bounty.count({
+    where: { project: { createdBy: session.id as string } }
+  });
+
   const stats = [
     { label: 'Total Events', value: totalEvents, icon: Calendar, color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
     { label: 'Registrations', value: totalAttendees, icon: Users, color: 'text-pink-400', bg: 'bg-pink-500/10' },
-    { label: 'RSVP Tickets', value: totalRsvpTickets, icon: Zap, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-    { label: 'Paid Tickets', value: totalPaidTickets, icon: Zap, color: 'text-[#ffd700]', bg: 'bg-[#ffd700]/10' },
+    { label: 'RSVP Tickets', value: totalRsvpTickets + totalRsvpCount, icon: Zap, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+    { label: 'Bounties', value: totalBounties, icon: Target, color: 'text-[#ffd700]', bg: 'bg-[#ffd700]/10' },
   ];
 
   return (

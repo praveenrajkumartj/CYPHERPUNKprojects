@@ -25,7 +25,7 @@ export default async function EventDetailPage({
   const event = await prisma.event.findUnique({
     where: { id },
     include: {
-      organizer: true,
+      organizer: { include: { profile: true } },
       speakers: true,
       schedules: true,
       registrations: userId ? { where: { userId } } : false,
@@ -38,6 +38,7 @@ export default async function EventDetailPage({
 
   if (!event) notFound();
 
+  const organizerName = event.organizer?.profile?.name || event.organizer?.username || 'Unknown';
   const isRsvped = (event.registrations?.length ?? 0) > 0;
   const isBooked = (event.tickets?.length ?? 0) > 0;
   const isPaid = event.type !== 'hackathon'; // Simple logic for demo
@@ -47,13 +48,18 @@ export default async function EventDetailPage({
       <Navbar />
 
       {/* Hero Banner */}
-      <div className="relative h-[60vh] w-full pt-20 bg-[#0c1222]">
-        {event.bannerImage && (event.bannerImage.startsWith('http') || event.bannerImage.startsWith('/')) && (
+      <div className="relative h-[65vh] w-full pt-20 bg-[#0c1222] overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)] opacity-30" />
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+        {event.bannerImage && (
           <Image 
-            src={event.bannerImage} 
+            src={event.bannerImage.startsWith('http') || event.bannerImage.startsWith('/') ? event.bannerImage : `/${event.bannerImage}`} 
             alt={event.title} 
             fill 
-            className="object-cover opacity-50"
+            className="object-cover opacity-40 mix-blend-luminosity"
             priority
           />
         )}
@@ -66,19 +72,19 @@ export default async function EventDetailPage({
             className="space-y-6 max-w-4xl"
           >
             <div className="flex flex-wrap gap-4 items-center">
-              <span className="px-4 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-xs font-bold uppercase tracking-widest text-cyan-400">
+              <span className="px-4 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400">
                 {event.type}
               </span>
-              <span className="flex items-center gap-2 text-slate-300 text-sm font-medium">
-                <Calendar size={16} className="text-cyan-400" />
+              <span className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                <Calendar size={14} className="text-cyan-400" />
                 {format(new Date(event.date), 'MMMM dd, yyyy')}
               </span>
-              <span className="flex items-center gap-2 text-slate-300 text-sm font-medium">
-                <Clock size={16} className="text-pink-400" />
+              <span className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                <Clock size={14} className="text-pink-400" />
                 {format(new Date(event.date), 'HH:mm')} UTC
               </span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1]">
+            <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-[0.9] text-white">
               {event.title}
             </h1>
           </MotionDiv>
@@ -114,17 +120,28 @@ export default async function EventDetailPage({
                   <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-slate-500">Transmission Nodes (Speakers)</h2>
                 </div>
                 <div className="grid md:grid-cols-2 gap-6">
-                  {event.speakers.map((speaker) => (
-                    <div key={speaker.id} className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-sm">
-                      <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-white/10">
-                        <Image src={speaker.image || '/images/avatar_1_1777452297481.png'} alt={speaker.name} fill className="object-cover" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold text-white">{speaker.name}</h4>
-                        <p className="text-sm text-cyan-400 font-medium">{speaker.designation}</p>
-                      </div>
-                    </div>
-                  ))}
+                   {event.speakers.map((speaker) => {
+                     const imageSrc = speaker.image 
+                       ? (speaker.image.startsWith('http') || speaker.image.startsWith('/') ? speaker.image : `/${speaker.image}`)
+                       : '/images/avatar_1.png';
+                     
+                     return (
+                       <div key={speaker.id} className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-sm">
+                         <div className="relative w-20 h-20 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
+                           <Image 
+                             src={imageSrc} 
+                             alt={speaker.name} 
+                             fill 
+                             className="object-cover" 
+                           />
+                         </div>
+                         <div>
+                           <h4 className="text-lg font-bold text-white">{speaker.name}</h4>
+                           <p className="text-sm text-cyan-400 font-medium">{speaker.designation}</p>
+                         </div>
+                       </div>
+                     );
+                   })}
                 </div>
               </section>
             )}
@@ -189,9 +206,9 @@ export default async function EventDetailPage({
                      </div>
                      <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                           {event.organizer.name.charAt(0)}
+                           {organizerName.charAt(0)}
                         </div>
-                        <span className="font-bold text-sm text-white">{event.organizer.name}</span>
+                        <span className="font-bold text-sm text-white">{organizerName}</span>
                      </div>
                   </div>
                 </div>
